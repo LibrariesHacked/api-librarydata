@@ -22,7 +22,7 @@ module.exports.getRecordInTable = (base_name, table, record_field, record_value,
   base(table).select({
     maxRecords: 1,
     view: 'Grid view',
-    filterByFormula: "NOT({" + record_field + "} = '" + record_value + "')"
+    filterByFormula: "({" + record_field + "} = '" + record_value + "')"
   }).firstPage(function (err, records) {
     if (records.length > 0) callback(records[0].fields);
     callback(null);
