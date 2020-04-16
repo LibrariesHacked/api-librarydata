@@ -19,7 +19,10 @@ module.exports.getFeedFromUrls = async (urls, title) => {
     size: 100,
     feeds: urls,
     pubDate: new Date(),
-    softFail: true
+    custom_namespaces: {
+      'yt': 'http://www.youtube.com/xml/schemas/2015',
+      'media': 'http://search.yahoo.com/mrss/'
+    }
   };
   var feed = await RSSCombiner(feedConfig);
   return feed;

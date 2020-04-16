@@ -7,9 +7,13 @@ const feedHelper = require('../helpers/feed');
 /**
  * Produces a single youtube feed from all existing feeds
  */
-router.get('/airtable/feeds/youtube', async (req, res) => {
+router.get('/airtable/feeds/youtube\.:ext(json|xml)', async (req, res) => {
   const youtube_ids = await airtableHelper.getSingleFieldArrayAllRecordsInTable(process.env.AIRTABLE_LIBRARY_SERVICES_BASE_ID, process.env.AIRTABLE_LIBRARY_SERVICES_TABLE_NAME, 'YouTube ID');
   const feed = await feedHelper.getFeedFromYouTubeIds(youtube_ids);
+  if (req.params.ext === 'xml') {
+    res.set('Content-Type', 'text/xml');
+    return res.send(feed.xml());
+  }
   return res.json(feed);
 });
 
