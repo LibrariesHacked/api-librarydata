@@ -2,27 +2,31 @@ const express = require('express');
 const router = express.Router();
 
 const airtableHelper = require('../helpers/airtable');
+const feedHelper = require('../helpers/feed');
 
 /**
- * Gets a single service from airtable
+ * Produces a single youtube feed from all existing feeds
  */
-router.get('/airtable/:service_code', (req, res) => {
-  airtableHelper.getRecordInTable(process.env.AIRTABLE_LIBRARY_SERVICES_BASE_ID, process.env.AIRTABLE_LIBRARY_SERVICES_TABLE_NAME, process.env.AIRTABLE_LIBRARY_SERVICES_CODE_FIELD, req.params.service_code, (data) => { res.json(data) });
+router.get('/airtable/feeds/youtube', async (req, res) => {
+  const youtube_ids = await airtableHelper.getSingleFieldArrayAllRecordsInTable(process.env.AIRTABLE_LIBRARY_SERVICES_BASE_ID, process.env.AIRTABLE_LIBRARY_SERVICES_TABLE_NAME, 'YouTube ID');
+  const feed = await feedHelper.getFeedFromYouTubeIds(youtube_ids);
+  return res.json(feed);
 });
 
 /**
  * Gets all the library services from airtable
  */
-router.get('/airtable', (req, res) => {
-  airtableHelper.getAllRecordsInTable(process.env.AIRTABLE_LIBRARY_SERVICES_BASE_ID, process.env.AIRTABLE_LIBRARY_SERVICES_TABLE_NAME, (data) => { res.json(data) });
+router.get('/airtable', async (req, res) => {
+  const records = await airtableHelper.getAllRecordsInTable(process.env.AIRTABLE_LIBRARY_SERVICES_BASE_ID, process.env.AIRTABLE_LIBRARY_SERVICES_TABLE_NAME);
+  res.json(records);
 });
 
 /**
- * Produces a single video feed from all existing feeds.
- * Cached to speed things up
+ * Gets a single service from airtable
  */
-router.get('/airtable/feeds/video', (req, res) => {
-  airtableHelper.getAllRecordsInTable(process.env.AIRTABLE_LIBRARY_SERVICES_BASE_ID, process.env.AIRTABLE_LIBRARY_SERVICES_TABLE_NAME, (data) => { res.json(data) });
+router.get('/airtable/:service_code', async (req, res) => {
+  const record = await airtableHelper.getRecordInTable(process.env.AIRTABLE_LIBRARY_SERVICES_BASE_ID, process.env.AIRTABLE_LIBRARY_SERVICES_TABLE_NAME, process.env.AIRTABLE_LIBRARY_SERVICES_CODE_FIELD, req.params.service_code);
+  res.json(record);
 });
 
 module.exports = router;

@@ -1,30 +1,25 @@
 const Airtable = require('airtable');
 
-module.exports.getAllRecordsInTable = (base_name, table, callback) => {
+module.exports.getAllRecordsInTable = async (base_name, table) => {
   const base = new Airtable({ apiKey: process.env.AIRTABLE_API_KEY }).base(base_name);
-
-  var all_records = [];
-  base(table).select({
-    view: 'Grid view'
-  }).eachPage(function page(records, fetchNextPage) {
-    records.forEach(function (record) {
-      all_records.push(record.fields);
-    });
-    fetchNextPage();
-  }, function done(err) {
-    callback(all_records);
-  });
+  var all_records = await base(table).select({}).all();
+  return all_records.map(r => r.fields);
 }
 
-module.exports.getRecordInTable = (base_name, table, record_field, record_value, callback) => {
+module.exports.getSingleFieldArrayAllRecordsInTable = async (base_name, table, field_name) => {
+  const base = new Airtable({ apiKey: process.env.AIRTABLE_API_KEY }).base(base_name);
+  var all_records = await base(table).select({}).all();
+  return all_records.map(r => r.fields[field_name]).filter(Boolean);
+}
+
+module.exports.getRecordInTable = async (base_name, table, field_name, field_value) => {
   const base = new Airtable({ apiKey: process.env.AIRTABLE_API_KEY }).base(base_name);
 
-  base(table).select({
+  var records = await base(table).select({
     maxRecords: 1,
-    view: 'Grid view',
-    filterByFormula: "({" + record_field + "} = '" + record_value + "')"
-  }).firstPage(function (err, records) {
-    if (records.length > 0) callback(records[0].fields);
-    callback(null);
-  });
+    filterByFormula: "({" + field_name + "} = '" + field_value + "')"
+  }).all();
+
+  if (records.length > 0) return records[0].fields;
+  return null;
 }
