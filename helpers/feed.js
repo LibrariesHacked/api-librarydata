@@ -1,5 +1,17 @@
 const RSSCombiner = require('../lib/feed-combiner');
 
+module.exports.getFeedFromUrls = async (urls, title, custom_namespaces) => {
+  var feedConfig = {
+    title: title,
+    size: 100,
+    feeds: urls,
+    pubDate: new Date(),
+    custom_namespaces: custom_namespaces
+  };
+  var feed = await RSSCombiner(feedConfig);
+  return feed;
+}
+
 module.exports.getYouTubeFeedUrlFromId = (id) => {
   const youtube_url = process.env.YOUTUBE_FEED_URL;
   const id_types = {
@@ -13,23 +25,16 @@ module.exports.getYouTubeFeedUrlArrayFromIds = (ids) => {
   return ids.map(id => this.getYouTubeFeedUrlFromId(id));
 }
 
-module.exports.getFeedFromUrls = async (urls, title) => {
-  var feedConfig = {
-    title: title,
-    size: 100,
-    feeds: urls,
-    pubDate: new Date(),
-    custom_namespaces: {
-      'yt': 'http://www.youtube.com/xml/schemas/2015',
-      'media': 'http://search.yahoo.com/mrss/'
-    }
-  };
-  var feed = await RSSCombiner(feedConfig);
+module.exports.getFeedFromYouTubeIds = async (ids) => {
+  const urls = this.getYouTubeFeedUrlArrayFromIds(ids);
+  const feed = await this.getFeedFromUrls(urls, 'YouTube libraries | Libraries at home', {
+    'yt': 'http://www.youtube.com/xml/schemas/2015',
+    'media': 'http://search.yahoo.com/mrss/'
+  });
   return feed;
 }
 
-module.exports.getFeedFromYouTubeIds = async (ids) => {
-  const urls = this.getYouTubeFeedUrlArrayFromIds(ids);
-  const feed = await this.getFeedFromUrls(urls, 'YouTube libraries | Libraries at home');
+module.exports.getFeedFromBlogUrls = async (urls) => {
+  const feed = await this.getFeedFromUrls(urls, 'Library blogs | Libraries at home', {});
   return feed;
 }

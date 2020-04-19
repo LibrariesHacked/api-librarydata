@@ -7,6 +7,19 @@ const feedHelper = require('../helpers/feed');
 const cache = require('../middleware/cache');
 
 /**
+ * Produces a single blog feed from all existing feeds
+ */
+router.get('/airtable/feeds/blogs\.:ext(json|xml)', cache(3600), async (req, res) => {
+  const blog_urls = await airtableHelper.getSingleFieldArrayAllRecordsInTable(process.env.AIRTABLE_LIBRARY_SERVICES_BASE_ID, process.env.AIRTABLE_LIBRARY_SERVICES_TABLE_NAME, 'Blog RSS feed');
+  const feed = await feedHelper.getFeedFromBlogUrls(blog_urls);
+  if (req.params.ext === 'xml') {
+    res.set('Content-Type', 'text/xml');
+    return res.send(feed.xml());
+  }
+  return res.json(feed);
+});
+
+/**
  * Produces a single youtube feed from all existing feeds
  */
 router.get('/airtable/feeds/youtube\.:ext(json|xml)', cache(3600), async (req, res) => {
