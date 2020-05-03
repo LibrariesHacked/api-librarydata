@@ -21,6 +21,11 @@ module.exports.getYouTubeFeedUrlFromId = (id) => {
   return youtube_url + (id_types[id.substring(0, 2)] || 'user') + '=' + id;
 }
 
+module.exports.getFlickrFeedUrlFromId = (id) => {
+  const flickr_url = process.env.FLICKR_FEED_URL;
+  return flickr_url + id;
+}
+
 module.exports.getYouTubeFeedUrlArrayFromIds = (ids) => {
   return ids.map(id => this.getYouTubeFeedUrlFromId(id));
 }
