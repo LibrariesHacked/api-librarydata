@@ -1,16 +1,15 @@
-var mcache = require('memory-cache');
+var mcache = require('memory-cache')
 
 var cache = (duration) => {
   return (req, res, next) => {
-    let key = '__express__' + req.originalUrl || req.url
-    let cachedBody = mcache.get(key)
+    const key = '__express__' + req.originalUrl || req.url
+    const cachedBody = mcache.get(key)
     if (cachedBody) {
       res.send(cachedBody)
-      return
     } else {
       res.sendResponse = res.send
       res.send = (body) => {
-        mcache.put(key, body, duration * 1000);
+        mcache.put(key, body, duration * 1000)
         res.sendResponse(body)
       }
       next()
@@ -18,4 +17,4 @@ var cache = (duration) => {
   }
 }
 
-module.exports = cache;
+module.exports = cache
