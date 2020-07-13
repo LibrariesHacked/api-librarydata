@@ -63,7 +63,9 @@ module.exports.getTileData = async (x, y, z) => {
   let tile = null
   try {
     const { rows } = await pool.query(query, [x, y, z])
-    if (rows && rows.length > 0 && rows[0].fn_stops_mvt) tile = rows[0].fn_stops_mvt
-  } catch (e) { }
+    if (rows && rows.length > 0 && rows[0].fn_libraries_mvt) tile = rows[0].fn_libraries_mvt
+  } catch (e) {
+    console.log(e)
+  }
   return tile
 }
