@@ -64,8 +64,16 @@ module.exports.getTileData = async (x, y, z) => {
   try {
     const { rows } = await pool.query(query, [x, y, z])
     if (rows && rows.length > 0 && rows[0].fn_libraries_mvt) tile = rows[0].fn_libraries_mvt
-  } catch (e) {
-    console.log(e)
-  }
+  } catch (e) { }
+  return tile
+}
+
+module.exports.getBuildingsTileData = async (x, y, z) => {
+  const query = 'select fn_libraries_buildings_mvt($1, $2, $3)'
+  let tile = null
+  try {
+    const { rows } = await pool.query(query, [x, y, z])
+    if (rows && rows.length > 0 && rows[0].fn_libraries_buildings_mvt) tile = rows[0].fn_libraries_buildings_mvt
+  } catch (e) { }
   return tile
 }

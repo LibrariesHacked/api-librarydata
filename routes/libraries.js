@@ -31,6 +31,15 @@ router.get('/:id', cache(3600), function (req, res, next) {
     })
 })
 
+router.get('/buildings/:z/:x/:y.mvt', cache(3600), async (req, res) => {
+  const { z, x, y } = req.params
+  libraryModel.getBuildingsTileData(x, y, z).then(tile => {
+    res.setHeader('Content-Type', 'application/x-protobuf')
+    if (!tile) return res.status(204).send(null)
+    res.send(tile)
+  })
+})
+
 router.get('/:z/:x/:y.mvt', cache(3600), async (req, res) => {
   const { z, x, y } = req.params
   libraryModel.getTileData(x, y, z).then(tile => {
