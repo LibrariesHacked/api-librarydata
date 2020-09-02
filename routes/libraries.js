@@ -3,7 +3,7 @@ const router = express.Router()
 const cache = require('../middleware/cache')
 const libraryModel = require('../models/library')
 
-router.get('/', cache(3600), function (req, res, next) {
+router.get('/', function (req, res, next) {
   const serviceCodes = req.query.service_codes || null
   const longitude = req.query.longitude || null
   const latitude = req.query.latitude || null
