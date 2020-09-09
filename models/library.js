@@ -3,7 +3,7 @@ const pool = require('../helpers/database')
 const viewFields = ['"Local authority"', '"Local authority code"', '"Library name"', '"Address 1"', '"Address 2"', '"Address 3"', '"Postcode"', '"Unique property reference number"', '"Unique property reference number longitude"', '"Unique property reference number latitude"', '"Statutory"', '"Library type"', '"Year opened"', '"Year closed"', '"Monday staffed hours"', '"Tuesday staffed hours"', '"Wednesday staffed hours"', '"Thursday staffed hours"', '"Friday staffed hours"', '"Saturday staffed hours"', '"Sunday staffed hours"', '"Monday unstaffed hours"', '"Tuesday unstaffed hours"', '"Wednesday unstaffed hours"', '"Thursday unstaffed hours"', '"Friday unstaffed hours"', '"Saturday unstaffed hours"', '"Sunday unstaffed hours"', '"Co-located"', '"Co-located with"', '"Notes"', '"URL"', '"Email address"', '"Longitude"', '"Latitude"', 'id']
 
 module.exports.getLibraries = async (serviceCodes, longitude, latitude, distance, limit, page, sort) => {
-  const services = serviceCodes ? serviceCodes.split('|').map(o => parseInt(o)) : []
+  const services = serviceCodes ? serviceCodes.split('|') : []
 
   let params = [
     ['limit', limit],
