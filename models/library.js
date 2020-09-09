@@ -30,7 +30,7 @@ module.exports.getLibraries = async (serviceCodes, longitude, latitude, distance
     params = params.map(p => p[1]) // Change params array just to values.
 
     if (services.length > 0) {
-      whereQueries.push('local_authority_code in (' + services.map((o, oidx) => '$' + (oidx + 1 + params.length) + '::int').join(',') + ')')
+      whereQueries.push('"Local authority code" in (' + services.map((o, oidx) => '$' + (oidx + 1 + params.length)).join(',') + ')')
       params = params.concat(services)
     }
 
