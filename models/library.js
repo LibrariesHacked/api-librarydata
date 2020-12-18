@@ -1,6 +1,7 @@
 const pool = require('../helpers/database')
 
-const viewFields = ['"Local authority"', '"Local authority code"', '"Library name"', '"Address 1"', '"Address 2"', '"Address 3"', '"Postcode"', '"Unique property reference number"', '"Unique property reference number longitude"', '"Unique property reference number latitude"', '"Statutory"', '"Library type"', '"Year opened"', '"Year closed"', '"Monday staffed hours"', '"Tuesday staffed hours"', '"Wednesday staffed hours"', '"Thursday staffed hours"', '"Friday staffed hours"', '"Saturday staffed hours"', '"Sunday staffed hours"', '"Monday unstaffed hours"', '"Tuesday unstaffed hours"', '"Wednesday unstaffed hours"', '"Thursday unstaffed hours"', '"Friday unstaffed hours"', '"Saturday unstaffed hours"', '"Sunday unstaffed hours"', '"Co-located"', '"Co-located with"', '"Notes"', '"URL"', '"Email address"', '"Longitude"', '"Latitude"', 'id']
+const viewFieldsSchema = ['"Local authority"', '"Local authority code"', '"Library name"', '"Address 1"', '"Address 2"', '"Address 3"', '"Postcode"', '"Unique property reference number"', '"Unique property reference number longitude"', '"Unique property reference number latitude"', '"Statutory"', '"Library type"', '"Year opened"', '"Year closed"', '"Monday staffed hours"', '"Tuesday staffed hours"', '"Wednesday staffed hours"', '"Thursday staffed hours"', '"Friday staffed hours"', '"Saturday staffed hours"', '"Sunday staffed hours"', '"Monday unstaffed hours"', '"Tuesday unstaffed hours"', '"Wednesday unstaffed hours"', '"Thursday unstaffed hours"', '"Friday unstaffed hours"', '"Saturday unstaffed hours"', '"Sunday unstaffed hours"', '"Co-located"', '"Co-located with"', '"Notes"', '"URL"', '"Email address"', '"Longitude"', '"Latitude"', 'id']
+const viewFieldsGeo = ['local_authority', 'local_authority_code', 'library_name', 'address_1', 'address_2', 'address_3', 'postcode', 'library_type', 'year_closed', 'unique_property_reference_number', 'colocated', 'longitude', 'latitude', 'easting', 'northing', 'oa_code', 'county_code', 'ward_code', 'region_code', 'country_code', 'rural_urban_classification', 'imd']
 
 module.exports.getLibraries = async (serviceCodes, longitude, latitude, distance, limit, page, sort) => {
   const services = serviceCodes ? serviceCodes.split('|') : []
@@ -26,7 +27,7 @@ module.exports.getLibraries = async (serviceCodes, longitude, latitude, distance
       }
     })
 
-    if (viewFields.indexOf(sort) !== -1) orderQuery = 'order by ' + sort + ' asc '
+    if (viewFieldsSchema.indexOf(sort) !== -1) orderQuery = 'order by ' + sort + ' asc '
     params = params.map(p => p[1]) // Change params array just to values.
 
     if (services.length > 0) {
@@ -39,7 +40,7 @@ module.exports.getLibraries = async (serviceCodes, longitude, latitude, distance
       params = params.concat([longitude, latitude, distance])
     }
 
-    const query = 'select ' + viewFields.join(', ') + ', count(*) OVER() AS total from vw_schemas_libraries_extended ' + (whereQueries.length > 0 ? 'where ' + whereQueries.join(' and ') + ' ' : '') + orderQuery + limitQuery + offsetQuery
+    const query = 'select ' + viewFieldsSchema.join(', ') + ', count(*) OVER() AS total from vw_schemas_libraries_extended ' + (whereQueries.length > 0 ? 'where ' + whereQueries.join(' and ') + ' ' : '') + orderQuery + limitQuery + offsetQuery
 
     const { rows } = await pool.query(query, params)
 
@@ -48,10 +49,22 @@ module.exports.getLibraries = async (serviceCodes, longitude, latitude, distance
   return libraries
 }
 
+module.exports.getNearestLibraries = async (longitude, latitude, limit) => {
+  let libraries = []
+  try {
+    const query = 'select ' + viewFieldsGeo.join(', ') + ',  st_distance(st_transform(st_setsrid(st_makepoint($1, $2), 4326), 27700), st_setsrid(st_makepoint(easting, northing), 27700)) as distance from vw_libraries_geo order by distance asc limit $3'
+    const { rows } = await pool.query(query, [longitude, latitude, limit])
+    if (rows.length > 0) libraries = rows
+  } catch (e) {
+    console.log(e.message)
+  }
+  return libraries
+}
+
 module.exports.getLibraryById = async (id) => {
   let library = null
   try {
-    const query = 'select ' + viewFields.join(', ') + ' ' + 'from vw_schemas_libraries_extended where id = $1'
+    const query = 'select ' + viewFieldsSchema.join(', ') + ' ' + 'from vw_schemas_libraries_extended where id = $1'
     const { rows } = await pool.query(query, [id])
     if (rows.length > 0) library = rows[0]
   } catch (e) { }

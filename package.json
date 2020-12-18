@@ -4,6 +4,7 @@
   "description": "API for various UK library data",
   "main": "app.js",
   "scripts": {
+    "start": "node app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -25,7 +26,7 @@
     "feedparser": "^2.2.10",
     "lodash": "^4.17.20",
     "memory-cache": "^0.2.0",
-    "pg": "^8.3.3",
+    "pg": "^8.5.1",
     "q": "^1.5.1",
     "request": "^2.88.2",
     "rss": "^1.2.2",

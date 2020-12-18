@@ -21,6 +21,14 @@ router.get('/', function (req, res, next) {
   })
 })
 
+router.get('/nearest', function (req, res, next) {
+  const longitude = req.query.longitude || null
+  const latitude = req.query.latitude || null
+  const limit = req.query.limit || 1
+
+  libraryModel.getNearestLibraries(longitude, latitude, limit).then(libraries => res.json(libraries))
+})
+
 router.get('/:id', cache(3600), function (req, res, next) {
   libraryModel.getLibraryById(req.params.id)
     .then(stop => {

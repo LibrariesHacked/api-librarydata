@@ -9,7 +9,9 @@ const config = {
   database: process.env.PGDATABASE,
   password: process.env.PGPASSWORD,
   port: process.env.PGPORT,
-  ssl: true,
+  ssl: {
+    rejectUnauthorized: false
+  },
   max: 10,
   idleTimeoutMillis: 30000
 }
