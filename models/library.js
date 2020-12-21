@@ -52,7 +52,7 @@ module.exports.getLibraries = async (serviceCodes, longitude, latitude, distance
 module.exports.getNearestLibraries = async (longitude, latitude, limit) => {
   let libraries = []
   try {
-    const query = 'select ' + viewFieldsGeo.join(', ') + ',  st_distance(st_transform(st_setsrid(st_makepoint($1, $2), 4326), 27700), st_setsrid(st_makepoint(easting, northing), 27700)) as distance from vw_libraries_geo order by distance asc limit $3'
+    const query = 'select ' + viewFieldsGeo.join(', ') + ',  st_distance(st_transform(st_setsrid(st_makepoint($1, $2), 4326), 27700), st_setsrid(st_makepoint(easting, northing), 27700)) as distance from vw_libraries_geo where year_closed is null order by distance asc limit $3'
     const { rows } = await pool.query(query, [longitude, latitude, limit])
     if (rows.length > 0) libraries = rows
   } catch (e) {
