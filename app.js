@@ -3,6 +3,7 @@ const express = require('express')
 const bodyParser = require('body-parser')
 const app = express()
 
+const authenticate = require('./routes/authenticate')
 const services = require('./routes/services')
 const libraries = require('./routes/libraries')
 
@@ -21,6 +22,7 @@ app.use(bodyParser.json())
 app.use(bodyParser.text({ type: 'text/csv' }))
 app.use(bodyParser.urlencoded({ extended: false }))
 
+app.use('/authenticate', authenticate)
 app.use('/services', services)
 app.use('/libraries', libraries)
 

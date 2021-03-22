@@ -3,6 +3,9 @@ const router = express.Router()
 const cache = require('../middleware/cache')
 const libraryModel = require('../models/library')
 
+/**
+ * Get all libraries with paging and filter parameters
+ */
 router.get('/', function (req, res, next) {
   const serviceCodes = req.query.service_codes || null
   const longitude = req.query.longitude || null
@@ -21,6 +24,9 @@ router.get('/', function (req, res, next) {
   })
 })
 
+/**
+ * Get the nearest libraries to a specified location
+ */
 router.get('/nearest', function (req, res, next) {
   const longitude = req.query.longitude || null
   const latitude = req.query.latitude || null
@@ -29,6 +35,9 @@ router.get('/nearest', function (req, res, next) {
   libraryModel.getNearestLibraries(longitude, latitude, limit).then(libraries => res.json(libraries))
 })
 
+/**
+ * Get a library
+ */
 router.get('/:id', cache(3600), function (req, res, next) {
   libraryModel.getLibraryById(req.params.id)
     .then(stop => {
@@ -39,6 +48,9 @@ router.get('/:id', cache(3600), function (req, res, next) {
     })
 })
 
+/**
+ * Library buildings MVT tile service
+ */
 router.get('/buildings/:z/:x/:y.mvt', cache(3600), async (req, res) => {
   const { z, x, y } = req.params
   libraryModel.getBuildingsTileData(x, y, z).then(tile => {
@@ -48,6 +60,9 @@ router.get('/buildings/:z/:x/:y.mvt', cache(3600), async (req, res) => {
   })
 })
 
+/**
+ * Libraries MVT tile service
+ */
 router.get('/:z/:x/:y.mvt', cache(3600), async (req, res) => {
   const { z, x, y } = req.params
   libraryModel.getTileData(x, y, z).then(tile => {

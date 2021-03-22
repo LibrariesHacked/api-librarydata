@@ -18,18 +18,23 @@
   },
   "homepage": "https://github.com/LibrariesHacked/api-librarydata#readme",
   "dependencies": {
-    "airtable": "^0.8.1",
+    "airtable": "^0.10.1",
     "body-parser": "^1.19.0",
     "dotenv": "^8.2.0",
     "dotenv-defaults": "^2.0.1",
+    "email-templates": "^8.0.3",
     "express": "^4.17.1",
     "feedparser": "^2.2.10",
+    "jsonwebtoken": "^8.5.1",
     "lodash": "^4.17.20",
     "memory-cache": "^0.2.0",
+    "nodemailer": "^6.5.0",
     "pg": "^8.5.1",
+    "pug": "^3.0.2",
     "q": "^1.5.1",
     "request": "^2.88.2",
     "rss": "^1.2.2",
-    "stream": "0.0.2"
+    "stream": "0.0.2",
+    "tld-extract": "^2.0.1"
   }
 }

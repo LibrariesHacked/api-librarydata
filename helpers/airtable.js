@@ -14,8 +14,12 @@ module.exports.getSingleFieldArrayAllRecordsInTable = async (baseName, table, fi
       filterByFormula: '({' + filterFieldName + "} = '" + filterFieldValue + "')"
     }
   }
-  var allRecords = await base(table).select(select).all()
-  return allRecords.map(r => r.fields[fieldName]).filter(Boolean)
+  try {
+    var allRecords = await base(table).select(select).all()
+    return allRecords.map(r => r.fields[fieldName]).filter(Boolean)
+  } catch (e) {
+    return null
+  }
 }
 
 module.exports.getRecordInTable = async (baseName, table, fieldName, fieldValue) => {
