@@ -27,7 +27,7 @@ module.exports.getLibraries = async (serviceCodes, longitude, latitude, distance
       }
     })
 
-    if (viewFieldsSchema.indexOf(sort) !== -1) orderQuery = 'order by ' + sort + ' ' + sortDirection + ' '
+    if (viewFieldsSchema.indexOf(sort) !== -1) orderQuery = 'order by ' + sort + ' ' + (sortDirection === 'desc' ? 'desc' : 'asc') + ' '
     params = params.map(p => p[1]) // Change params array just to values.
 
     if (services.length > 0) {
