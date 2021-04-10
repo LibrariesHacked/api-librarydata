@@ -15,8 +15,9 @@ router.get('/', function (req, res, next) {
   const page = req.query.page || 1
   const sort = req.query.sort || 'id'
   const sortDirection = req.query.direction || 'asc'
+  const closed = (req.query.closed === 'true')
 
-  libraryModel.getLibraries(serviceCodes, longitude, latitude, distance, limit, page, sort, sortDirection).then(libraries => {
+  libraryModel.getLibraries(serviceCodes, longitude, latitude, distance, limit, page, sort, sortDirection, closed).then(libraries => {
     res.setHeader('Access-Control-Expose-Headers', 'X-Total-Count, X-Page')
     res.setHeader('X-Total-Count', libraries.length > 0 ? libraries[0].total : 0)
     res.setHeader('X-Page', page)

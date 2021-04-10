@@ -3,7 +3,7 @@ const pool = require('../helpers/database')
 const viewFieldsSchema = ['"Local authority"', '"Local authority code"', '"Library name"', '"Address 1"', '"Address 2"', '"Address 3"', '"Postcode"', '"Unique property reference number"', '"Unique property reference number longitude"', '"Unique property reference number latitude"', '"Statutory"', '"Library type"', '"Year opened"', '"Year closed"', '"Monday staffed hours"', '"Tuesday staffed hours"', '"Wednesday staffed hours"', '"Thursday staffed hours"', '"Friday staffed hours"', '"Saturday staffed hours"', '"Sunday staffed hours"', '"Monday unstaffed hours"', '"Tuesday unstaffed hours"', '"Wednesday unstaffed hours"', '"Thursday unstaffed hours"', '"Friday unstaffed hours"', '"Saturday unstaffed hours"', '"Sunday unstaffed hours"', '"Co-located"', '"Co-located with"', '"Notes"', '"URL"', '"Email address"', '"Longitude"', '"Latitude"', 'id']
 const viewFieldsGeo = ['local_authority', 'local_authority_code', 'library_name', 'address_1', 'address_2', 'address_3', 'postcode', 'library_type', 'year_closed', 'unique_property_reference_number', 'colocated', 'colocated_with', 'notes', 'url', 'email_address', 'longitude', 'latitude', 'easting', 'northing', 'oa_code', 'county_code', 'ward_code', 'region_code', 'country_code', 'rural_urban_classification', 'imd']
 
-module.exports.getLibraries = async (serviceCodes, longitude, latitude, distance, limit, page, sort, sortDirection) => {
+module.exports.getLibraries = async (serviceCodes, longitude, latitude, distance, limit, page, sort, sortDirection, closed) => {
   const services = serviceCodes ? serviceCodes.split('|') : []
 
   let params = [
@@ -39,6 +39,8 @@ module.exports.getLibraries = async (serviceCodes, longitude, latitude, distance
       whereQueries.push('st_dwithin(st_transform(st_setsrid(st_makepoint($' + (params.length + 1) + ', $' + (params.length + 2) + '), 4326), 27700), st_transform(geom, 27700), $' + (params.length + 3) + ')')
       params = params.concat([longitude, latitude, distance])
     }
+
+    if (!closed) whereQueries.push('year_closed is null')
 
     const query = 'select ' + viewFieldsSchema.join(', ') + ', count(*) OVER() AS total from vw_schemas_libraries_extended ' + (whereQueries.length > 0 ? 'where ' + whereQueries.join(' and ') + ' ' : '') + orderQuery + limitQuery + offsetQuery
 
