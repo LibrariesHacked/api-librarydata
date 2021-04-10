@@ -40,7 +40,7 @@ module.exports.getLibraries = async (serviceCodes, longitude, latitude, distance
       params = params.concat([longitude, latitude, distance])
     }
 
-    if (!closed) whereQueries.push('year_closed is null')
+    if (!closed) whereQueries.push('"Year closed" is null')
 
     const query = 'select ' + viewFieldsSchema.join(', ') + ', count(*) OVER() AS total from vw_schemas_libraries_extended ' + (whereQueries.length > 0 ? 'where ' + whereQueries.join(' and ') + ' ' : '') + orderQuery + limitQuery + offsetQuery
 
