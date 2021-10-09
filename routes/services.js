@@ -5,6 +5,18 @@ const airtableHelper = require('../helpers/airtable')
 const feedHelper = require('../helpers/feed')
 
 const cache = require('../middleware/cache')
+const token = require('../middleware/token')
+
+const localAuthorityModel = require('../models/localAuthority')
+
+/**
+ * Get services including access rights for editing
+ */
+router.get('/', token.accessToken, async (req, res, next) => {
+  let services = await localAuthorityModel.getLocalAuthorities()
+  services.forEach(service => (service.editable = (req.claims && (req.claims.admin == true || req.claims.codes.indexOf(service.code) != -1))))
+  res.json(services)
+})
 
 /**
  * Get a single blog feed from all existing feeds

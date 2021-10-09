@@ -3,21 +3,31 @@ const jwt = require('jsonwebtoken')
 const nodemailer = require('nodemailer')
 const Email = require('email-templates')
 
+module.exports.verify = async (token) => {
+  let domain = null
+  try {
+    var decoded = jwt.verify(token, process.env.AUTHSECRET);
+    domain = decoded.sub
+  } catch (e) {
+    return null
+  }
+  const claims = await this.getDomainClaims(domain)
+  return claims
+}
+
 module.exports.getDomainClaims = async (domain) => {
   let claims = { admin: false, codes: [] }
   try {
     const query = 'select * from authentication where domain = $1 limit 1'
     const { rows } = await pool.query(query, [domain])
     if (rows.length > 0) claims = { admin: rows[0].admin, codes: rows[0].authority_codes }
-  } catch (e) {
-    console.log(e)
-  }
+  } catch (e) { }
   return claims
 }
 
 module.exports.sendMagicLink = async (email, claims, website) => {
   const domain = email.split('@').pop()
-  const token = jwt.sign(claims, process.env.AUTHSECRET, { audience: [website], expiresIn: '30d', issuer: 'https://www.librarydata.uk', subject: domain })
+  const token = jwt.sign(claims, process.env.AUTHSECRET, { audience: [website], expiresIn: '30d', issuer: 'https://create.librarydata.uk', subject: domain })
 
   const mailConfig = {
     host: process.env.SMTPSERVER,
