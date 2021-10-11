@@ -1,10 +1,11 @@
 'use strict'
+
 const express = require('express')
-const bodyParser = require('body-parser')
 const app = express()
 
 const authenticate = require('./routes/authenticate')
 const services = require('./routes/services')
+const schemas = require('./routes/schemas')
 const libraries = require('./routes/libraries')
 
 require('dotenv').config()
@@ -17,12 +18,12 @@ app.use(function (req, res, next) {
   next()
 })
 
-// Allow us to read JSON as JSON and text as text
-app.use(bodyParser.json())
-app.use(bodyParser.text({ type: 'text/csv' }))
-app.use(bodyParser.urlencoded({ extended: false }))
+app.use(express.urlencoded({ extended: false }))
+app.use(express.json())
+app.use(express.text({ type: 'text/csv' }))
 
 app.use('/authenticate', authenticate)
+app.use('/schemas', schemas)
 app.use('/services', services)
 app.use('/libraries', libraries)
 

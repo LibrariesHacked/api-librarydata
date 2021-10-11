@@ -3,6 +3,19 @@ const pool = require('../helpers/database')
 const viewFieldsSchema = ['"Local authority"', '"Local authority code"', '"Library name"', '"Address 1"', '"Address 2"', '"Address 3"', '"Postcode"', '"Unique property reference number"', '"Unique property reference number longitude"', '"Unique property reference number latitude"', '"Statutory"', '"Library type"', '"Year opened"', '"Year closed"', '"Monday staffed hours"', '"Tuesday staffed hours"', '"Wednesday staffed hours"', '"Thursday staffed hours"', '"Friday staffed hours"', '"Saturday staffed hours"', '"Sunday staffed hours"', '"Monday unstaffed hours"', '"Tuesday unstaffed hours"', '"Wednesday unstaffed hours"', '"Thursday unstaffed hours"', '"Friday unstaffed hours"', '"Saturday unstaffed hours"', '"Sunday unstaffed hours"', '"Co-located"', '"Co-located with"', '"Notes"', '"URL"', '"Email address"', '"Longitude"', '"Latitude"', 'id']
 const viewFieldsGeo = ['local_authority', 'local_authority_code', 'library_name', 'address_1', 'address_2', 'address_3', 'postcode', 'library_type', 'year_closed', 'unique_property_reference_number', 'colocated', 'colocated_with', 'notes', 'url', 'email_address', 'longitude', 'latitude', 'easting', 'northing', 'oa_code', 'county_code', 'ward_code', 'region_code', 'country_code', 'rural_urban_classification', 'imd']
 
+/**
+ * Gets a list of libraries
+ * @param {Array} serviceCodes An array of ONS codes
+ * @param {numeric} longitude A longitude coordinate value
+ * @param {numeric} latitude A latitude coordinate value
+ * @param {numeric} distance A distance in metres to limit the libraries to
+ * @param {numeric} limit The number of libraries to limit to
+ * @param {int} page The page number of the results
+ * @param {sting} sortDirection The field to sort by
+ * @param {string} sortDirection  ASC or DESC results
+ * @param {boolean} closed Whether to include closed libraries
+ * @returns {Array} A list of libraries
+ */
 module.exports.getLibraries = async (serviceCodes, longitude, latitude, distance, limit, page, sort, sortDirection, closed) => {
   const services = serviceCodes ? serviceCodes.split('|') : []
 
@@ -51,6 +64,13 @@ module.exports.getLibraries = async (serviceCodes, longitude, latitude, distance
   return libraries
 }
 
+/**
+ * Gets nearest libraries from a point
+ * @param {numeric} longitude A longitude coordinate value
+ * @param {numeric} latitude A latitude coordinate value
+ * @param {int} limit The number of libraries to limit to
+ * @returns {Array} A list of libraries
+ */
 module.exports.getNearestLibraries = async (longitude, latitude, limit) => {
   let libraries = []
   try {
@@ -63,6 +83,11 @@ module.exports.getNearestLibraries = async (longitude, latitude, limit) => {
   return libraries
 }
 
+/**
+ * Get library details by the internal ID
+ * @param {int} id
+ * @returns {object} A library object
+ */
 module.exports.getLibraryById = async (id) => {
   let library = null
   try {
@@ -73,6 +98,13 @@ module.exports.getLibraryById = async (id) => {
   return library
 }
 
+/**
+ * Get a library points tile
+ * @param {int} x
+ * @param {*} y
+ * @param {*} z
+ * @returns {encoded} The tile
+ */
 module.exports.getTileData = async (x, y, z) => {
   const query = 'select fn_libraries_mvt($1, $2, $3)'
   let tile = null
@@ -83,6 +115,13 @@ module.exports.getTileData = async (x, y, z) => {
   return tile
 }
 
+/**
+ * Get a building polygons tile
+ * @param {int} x
+ * @param {*} y
+ * @param {*} z
+ * @returns {encoded} The tile
+ */
 module.exports.getBuildingsTileData = async (x, y, z) => {
   const query = 'select fn_libraries_buildings_mvt($1, $2, $3)'
   let tile = null

@@ -3,7 +3,7 @@ const router = express.Router()
 const authHelper = require('../helpers/authenticate')
 
 /**
- * Trigger a new authenticate request
+ * Trigger a new authentication request
  */
 router.post('/', async function (req, res) {
   const email = req.body.email

@@ -1,27 +1,44 @@
 const authHelper = require('../helpers/authenticate')
 
+/**
+ * Add any claims and token to the request object
+ * @param {object} req The request object
+ * @param {object} res The response object
+ * @param {object} next Function to pass the request to the next stage
+ */
 module.exports.accessToken = async (req, res, next) => {
-  const bearerHeader = req.headers['authorization'];
+  const bearerHeader = req.headers.authorization
 
   if (bearerHeader) {
-    const bearer = bearerHeader.split(' ');
-    const bearerToken = bearer[1];
-    req.token = bearerToken;
-    req.claims = await authHelper.verify(bearerToken)
+    const bearer = bearerHeader.split(' ')
+    const bearerToken = bearer[1]
+    req.token = bearerToken
+    req.claims = await authHelper.verifyToken(bearerToken)
   }
-  next();
+  next()
 }
 
+/**
+ * Ensure a valid token and add any claims and token to the request object
+ * @param {object} req The request object
+ * @param {object} res The response object
+ * @param {object} next Function to pass the request to the next stage
+ */
 module.exports.verifyToken = async (req, res, next) => {
-  const bearerHeader = req.headers['authorization'];
+  const bearerHeader = req.headers.authorization
 
   if (bearerHeader) {
-    const bearer = bearerHeader.split(' ');
-    const bearerToken = bearer[1];
-    req.token = bearerToken;
-    req.claims = await authHelper.verify(bearerToken)
-    next();
+    const bearer = bearerHeader.split(' ')
+    const bearerToken = bearer[1]
+    const claims = await authHelper.verifyToken(bearerToken)
+    if (claims) {
+      req.token = bearerToken
+      req.claims = claims
+      next()
+    } else {
+      res.sendStatus(401)
+    }
   } else {
-    res.sendStatus(403);
+    res.sendStatus(401)
   }
 }

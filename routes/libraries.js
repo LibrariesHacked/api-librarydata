@@ -1,14 +1,12 @@
 const express = require('express')
 const router = express.Router()
 const cache = require('../middleware/cache')
-const token = require('../middleware/token')
 const libraryModel = require('../models/library')
-const csv = require("fast-csv")
 
 /**
  * Get all libraries with paging and filter parameters
  */
-router.get('/', function (req, res, next) {
+router.get('/', function (req, res) {
   const serviceCodes = req.query.service_codes || null
   const longitude = req.query.longitude || null
   const latitude = req.query.latitude || null
@@ -31,7 +29,7 @@ router.get('/', function (req, res, next) {
 /**
  * Get the nearest libraries to a specified location
  */
-router.get('/nearest', function (req, res, next) {
+router.get('/nearest', function (req, res) {
   const longitude = req.query.longitude || null
   const latitude = req.query.latitude || null
   const limit = req.query.limit || 1
@@ -42,7 +40,7 @@ router.get('/nearest', function (req, res, next) {
 /**
  * Get a library
  */
-router.get('/:id', cache(3600), function (req, res, next) {
+router.get('/:id', cache(3600), function (req, res) {
   libraryModel.getLibraryById(req.params.id)
     .then(stop => {
       if (stop != null) return res.json(stop)

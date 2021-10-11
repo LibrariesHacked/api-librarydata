@@ -3,10 +3,15 @@ const jwt = require('jsonwebtoken')
 const nodemailer = require('nodemailer')
 const Email = require('email-templates')
 
-module.exports.verify = async (token) => {
+/**
+ * Verifies that a JWT is valid and returns the claims or null if it isn't
+ * @param {string} token A JSON web token
+ * @returns {object|null} A claims object
+ */
+module.exports.verifyToken = async (token) => {
   let domain = null
   try {
-    var decoded = jwt.verify(token, process.env.AUTHSECRET);
+    var decoded = jwt.verify(token, process.env.JWT_SECRET)
     domain = decoded.sub
   } catch (e) {
     return null
@@ -15,6 +20,27 @@ module.exports.verify = async (token) => {
   return claims
 }
 
+/**
+ * Gets the user domain from a token
+ * @param {string} token 
+ * @returns {string} Email domain
+ */
+module.exports.getTokenDomain = async (token) => {
+  let domain = null
+  try {
+    var decoded = jwt.verify(token, process.env.JWT_SECRET)
+    domain = decoded.sub
+  } catch (e) {
+    return null
+  }
+  return domain
+}
+
+/**
+ * Gets the claims associated with an email address domain
+ * @param {string} domain A top level domain
+ * @returns {object} A claims object
+ */
 module.exports.getDomainClaims = async (domain) => {
   let claims = { admin: false, codes: [] }
   try {
@@ -25,6 +51,12 @@ module.exports.getDomainClaims = async (domain) => {
   return claims
 }
 
+/**
+ * Sends an email with a login link
+ * @param {string} email An email address
+ * @param {object} claims A claims object
+ * @param {string} website A web address
+ */
 module.exports.sendMagicLink = async (email, claims, website) => {
   const domain = email.split('@').pop()
   const token = jwt.sign(claims, process.env.AUTHSECRET, { audience: [website], expiresIn: '30d', issuer: 'https://create.librarydata.uk', subject: domain })
@@ -61,4 +93,14 @@ module.exports.sendMagicLink = async (email, claims, website) => {
         }
       })
   } catch (e) { }
+}
+
+/**
+ * Verify that a claim has access to a service code
+ * @param {string} serviceCode
+ * @param {object} claims
+ * @returns {boolean} Access
+ */
+module.exports.verifyServiceCodeAccess = async (serviceCode, claims) => {
+  return (claims.codes.indexOf(serviceCode) === -1 && claims.admin === false)
 }
