@@ -59,7 +59,7 @@ module.exports.getDomainClaims = async (domain) => {
  */
 module.exports.sendMagicLink = async (email, claims, website) => {
   const domain = email.split('@').pop()
-  const token = jwt.sign(claims, process.env.AUTHSECRET, { audience: [website], expiresIn: '30d', issuer: 'https://create.librarydata.uk', subject: domain })
+  const token = jwt.sign(claims, process.env.AUTHSECRET, { audience: [website], expiresIn: '30d', issuer: 'https://api.librarydata.uk', subject: domain })
 
   const mailConfig = {
     host: process.env.SMTPSERVER,
