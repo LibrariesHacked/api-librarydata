@@ -11,7 +11,7 @@ const Email = require('email-templates')
 module.exports.verifyToken = async (token) => {
   let domain = null
   try {
-    var decoded = jwt.verify(token, process.env.JWT_SECRET)
+    const decoded = jwt.verify(token, process.env.JWT_SECRET)
     domain = decoded.sub
   } catch (e) {
     return null
@@ -22,13 +22,13 @@ module.exports.verifyToken = async (token) => {
 
 /**
  * Gets the user domain from a token
- * @param {string} token 
+ * @param {string} token
  * @returns {string} Email domain
  */
 module.exports.getTokenDomain = async (token) => {
   let domain = null
   try {
-    var decoded = jwt.verify(token, process.env.JWT_SECRET)
+    const decoded = jwt.verify(token, process.env.JWT_SECRET)
     domain = decoded.sub
   } catch (e) {
     return null
@@ -55,11 +55,11 @@ module.exports.getDomainClaims = async (domain) => {
  * Sends an email with a login link
  * @param {string} email An email address
  * @param {object} claims A claims object
- * @param {string} website A web address
+ * @param {string} website A web address domain
  */
 module.exports.sendMagicLink = async (email, claims, website) => {
   const domain = email.split('@').pop()
-  const token = jwt.sign(claims, process.env.AUTHSECRET, { audience: [website], expiresIn: '30d', issuer: 'https://api.librarydata.uk', subject: domain })
+  const token = jwt.sign(claims, process.env.AUTHSECRET, { audience: [website], expiresIn: '30d', issuer: 'api.librarydata.uk', subject: domain })
 
   const mailConfig = {
     host: process.env.SMTPSERVER,
@@ -83,7 +83,7 @@ module.exports.sendMagicLink = async (email, claims, website) => {
   try {
     emailTemplate
       .send({
-        template: 'authenticate',
+        template: website + '-login',
         message: {
           to: email
         },

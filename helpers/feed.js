@@ -8,14 +8,14 @@ const RSSCombiner = require('../lib/feed-combiner')
  * @returns {Object} A combined feed
  */
 module.exports.getFeedFromUrls = async (urls, title, customNamespaces) => {
-  var feedConfig = {
+  const feedConfig = {
     title: title,
     size: 100,
     feeds: urls,
     pubDate: new Date(),
     custom_namespaces: customNamespaces
   }
-  var feed = await RSSCombiner(feedConfig)
+  const feed = await RSSCombiner(feedConfig)
   return feed
 }
 

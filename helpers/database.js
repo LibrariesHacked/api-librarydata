@@ -16,6 +16,6 @@ const config = {
   idleTimeoutMillis: 30000
 }
 
-var pool = new pg.Pool(config)
+const pool = new pg.Pool(config)
 
 module.exports = pool

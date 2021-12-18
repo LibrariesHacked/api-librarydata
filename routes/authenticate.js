@@ -9,6 +9,8 @@ router.post('/', async function (req, res) {
   const email = req.body.email
   const website = req.body.website
 
+  if (!email || !website) return res.status(400)
+
   const domain = email.split('@').pop()
 
   const claims = await authHelper.getDomainClaims(domain)

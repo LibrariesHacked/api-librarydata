@@ -8,7 +8,7 @@ const Airtable = require('airtable')
  */
 module.exports.getAllRecordsInTable = async (baseName, table) => {
   const base = new Airtable({ apiKey: process.env.AIRTABLE_API_KEY }).base(baseName)
-  var allRecords = await base(table).select({}).all()
+  const allRecords = await base(table).select({}).all()
   return allRecords.map(r => r.fields)
 }
 
@@ -23,14 +23,14 @@ module.exports.getAllRecordsInTable = async (baseName, table) => {
  */
 module.exports.getSingleFieldArrayAllRecordsInTable = async (baseName, table, fieldName, filterFieldName, filterFieldValue) => {
   const base = new Airtable({ apiKey: process.env.AIRTABLE_API_KEY }).base(baseName)
-  var select = {}
+  let select = {}
   if (filterFieldName) {
     select = {
       filterByFormula: '({' + filterFieldName + "} = '" + filterFieldValue + "')"
     }
   }
   try {
-    var allRecords = await base(table).select(select).all()
+    const allRecords = await base(table).select(select).all()
     return allRecords.map(r => r.fields[fieldName]).filter(Boolean)
   } catch (e) {
     return null
@@ -48,7 +48,7 @@ module.exports.getSingleFieldArrayAllRecordsInTable = async (baseName, table, fi
 module.exports.getRecordInTable = async (baseName, table, fieldName, fieldValue) => {
   const base = new Airtable({ apiKey: process.env.AIRTABLE_API_KEY }).base(baseName)
 
-  var records = await base(table).select({
+  const records = await base(table).select({
     maxRecords: 1,
     filterByFormula: '({' + fieldName + "} = '" + fieldValue + "')"
   }).all()
