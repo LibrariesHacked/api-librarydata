@@ -92,7 +92,11 @@ module.exports.sendMagicLink = async (email, claims, website) => {
           token: token
         }
       })
-  } catch (e) { }
+  } catch (e) { 
+    return false
+  }
+
+  return true
 }
 
 /**

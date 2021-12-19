@@ -19,7 +19,10 @@ router.post('/', async function (req, res) {
     return
   }
 
-  await authHelper.sendMagicLink(email, claims, website)
+  const emailSent = await authHelper.sendMagicLink(email, claims, website)
+
+  if (!emailSent) return res.status(500)
+  
   res.sendStatus(200)
 })
 
