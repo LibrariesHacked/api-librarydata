@@ -1,6 +1,6 @@
 const pool = require('../helpers/database')
 
-const tableFields = ['code', 'name']
+const tableFields = ['code', 'name', 'nice_name']
 
 /**
  * Gets the local library authorities in the database

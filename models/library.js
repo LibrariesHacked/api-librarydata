@@ -1,7 +1,14 @@
 const pool = require('../helpers/database')
 
-const viewFieldsSchema = ['"Local authority"', '"Local authority code"', '"Library name"', '"Address 1"', '"Address 2"', '"Address 3"', '"Postcode"', '"Unique property reference number"', '"Unique property reference number longitude"', '"Unique property reference number latitude"', '"Statutory"', '"Type of library"', '"Year opened"', '"Year closed"', '"Monday staffed hours"', '"Tuesday staffed hours"', '"Wednesday staffed hours"', '"Thursday staffed hours"', '"Friday staffed hours"', '"Saturday staffed hours"', '"Sunday staffed hours"', '"Monday unstaffed hours"', '"Tuesday unstaffed hours"', '"Wednesday unstaffed hours"', '"Thursday unstaffed hours"', '"Friday unstaffed hours"', '"Saturday unstaffed hours"', '"Sunday unstaffed hours"', '"Co-located"', '"Co-located with"', '"Notes"', '"URL"', '"Email address"', '"Longitude"', '"Latitude"', 'id']
 const viewFieldsGeo = ['local_authority', 'local_authority_code', 'library_name', 'address_1', 'address_2', 'address_3', 'postcode', 'library_type', 'year_closed', 'unique_property_reference_number', 'colocated', 'colocated_with', 'notes', 'url', 'email_address', 'longitude', 'latitude', 'easting', 'northing', 'oa_code', 'county_code', 'ward_code', 'region_code', 'country_code', 'rural_urban_classification', 'imd']
+const viewFieldsSchema = ['"Local authority"', '"Library name"', '"Address 1"', '"Address 2"', '"Address 3"', '"Postcode"', '"Unique property reference number"', '"Statutory"', '"Type of library"', '"Year opened"', '"Year closed"', '"Monday staffed hours"', '"Tuesday staffed hours"', '"Wednesday staffed hours"', '"Thursday staffed hours"', '"Friday staffed hours"', '"Saturday staffed hours"', '"Sunday staffed hours"', '"Monday unstaffed hours"', '"Tuesday unstaffed hours"', '"Wednesday unstaffed hours"', '"Thursday unstaffed hours"', '"Friday unstaffed hours"', '"Saturday unstaffed hours"', '"Sunday unstaffed hours"', '"Co-located"', '"Co-located with"', '"Notes"', '"URL"', '"Email address"']
+const viewFieldsSchemaExtended = ['"Local authority"', '"Local authority code"', '"Library name"', '"Address 1"', '"Address 2"', '"Address 3"', '"Postcode"', '"Unique property reference number"', '"Unique property reference number longitude"', '"Unique property reference number latitude"', '"Statutory"', '"Type of library"', '"Year opened"', '"Year closed"', '"Monday staffed hours"', '"Tuesday staffed hours"', '"Wednesday staffed hours"', '"Thursday staffed hours"', '"Friday staffed hours"', '"Saturday staffed hours"', '"Sunday staffed hours"', '"Monday unstaffed hours"', '"Tuesday unstaffed hours"', '"Wednesday unstaffed hours"', '"Thursday unstaffed hours"', '"Friday unstaffed hours"', '"Saturday unstaffed hours"', '"Sunday unstaffed hours"', '"Co-located"', '"Co-located with"', '"Notes"', '"URL"', '"Email address"', '"Longitude"', '"Latitude"', 'id']
+
+/**
+ * Returns the field names in the library view schema
+ * @returns {Array} A list of field names
+ */
+module.exports.getSchemaFields = () => viewFieldsSchema.map(f => f.replace(/\"/g, ''))
 
 /**
  * Gets a list of libraries
@@ -40,7 +47,7 @@ module.exports.getLibraries = async (serviceCodes, longitude, latitude, distance
       }
     })
 
-    if (viewFieldsSchema.indexOf('"' + sort + '"') !== -1) orderQuery = 'order by ' + '"' + sort + '"' + ' ' + (sortDirection === 'desc' ? 'desc' : 'asc') + ' '
+    if (viewFieldsSchemaExtended.indexOf('"' + sort + '"') !== -1) orderQuery = 'order by ' + '"' + sort + '"' + ' ' + (sortDirection === 'desc' ? 'desc' : 'asc') + ' '
     params = params.map(p => p[1]) // Change params array just to values.
 
     if (services.length > 0) {
@@ -55,10 +62,32 @@ module.exports.getLibraries = async (serviceCodes, longitude, latitude, distance
 
     if (!closed) whereQueries.push('"Year closed" is null')
 
-    const query = 'select ' + viewFieldsSchema.join(', ') + ', count(*) OVER() AS total from vw_schemas_libraries_extended ' + (whereQueries.length > 0 ? 'where ' + whereQueries.join(' and ') + ' ' : '') + orderQuery + limitQuery + offsetQuery
+    const query = 'select ' + viewFieldsSchemaExtended.join(', ') + ', count(*) OVER() AS total from vw_schemas_libraries_extended ' + (whereQueries.length > 0 ? 'where ' + whereQueries.join(' and ') + ' ' : '') + orderQuery + limitQuery + offsetQuery
 
     const { rows } = await pool.query(query, params)
 
+    libraries = rows
+  } catch (e) { }
+  return libraries
+}
+
+/**
+ * Gets a list of libraries in the strict schema definition
+ * @param {Array} serviceCodes An array of ONS codes
+ * @returns {Array} A list of libraries
+ */
+ module.exports.getLibrariesSchema = async (serviceCodes) => {
+  const services = serviceCodes ? serviceCodes.split('|') : []
+  let libraries = []
+  try {
+    let params = []
+    const whereQueries = []
+    if (services.length > 0) {
+      whereQueries.push('"Local authority" in (select name from schemas_local_authority where code in (' + services.map((o, oidx) => '$' + (oidx + 1 + params.length)).join(',') + '))')
+      params = params.concat(services)
+    }
+    const query = 'select ' + viewFieldsSchema.join(', ') + ' from vw_schemas_libraries ' + (whereQueries.length > 0 ? 'where ' + whereQueries.join(' and ') + ' ' : '')
+    const { rows } = await pool.query(query, params)
     libraries = rows
   } catch (e) { }
   return libraries
@@ -91,7 +120,7 @@ module.exports.getNearestLibraries = async (longitude, latitude, limit) => {
 module.exports.getLibraryById = async (id) => {
   let library = null
   try {
-    const query = 'select ' + viewFieldsSchema.join(', ') + ' ' + 'from vw_schemas_libraries_extended where id = $1'
+    const query = 'select ' + viewFieldsSchemaExtended.join(', ') + ' ' + 'from vw_schemas_libraries_extended where id = $1'
     const { rows } = await pool.query(query, [id])
     if (rows.length > 0) library = rows[0]
   } catch (e) { }

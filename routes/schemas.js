@@ -1,15 +1,36 @@
 const express = require('express')
 const router = express.Router()
 const token = require('../middleware/token')
+const { Parser } = require('json2csv')
 
 const authHelper = require('../helpers/authenticate')
 const githubHelper = require('../helpers/github')
 
 const localAuthorityModel = require('../models/localAuthority')
+const libraryModel = require('../models/library')
 
-/**
- * Upload library CSV schema
- */
+router.get('/libraries', async (req, res) => {
+  const libraries = await libraryModel.getLibrariesSchema()
+  if (req.accepts('text/csv')) {
+    const fields = libraryModel.getSchemaFields()
+    const parser = new Parser({ fields })
+    res.send(parser.parse(libraries))
+  } else {
+    res.json(libraries)
+  }
+})
+
+router.get('/libraries/:service_code', async (req, res) => {
+  const libraries = await libraryModel.getLibrariesSchema(req.params.service_code.toUpperCase())
+  if (req.accepts('text/csv')) {
+    const fields = libraryModel.getSchemaFields()
+    const parser = new Parser({ fields })
+    res.send(parser.parse(libraries))
+  } else {
+    res.json(libraries)
+  }
+})
+
 router.put('/libraries/:service_code', token.verifyToken, async (req, res) => {
   if (!authHelper.verifyServiceCodeAccess(req.params.service_code.toUpperCase(), req.claims)) return res.sendStatus(403)
 
