@@ -28,6 +28,6 @@ app.use('/schemas', schemas)
 app.use('/services', services)
 app.use('/libraries', libraries)
 
-const port = process.env.PORT || 8080
+const port = process.env.PORT || 3000
 const server = app.listen(port)
 server.timeout = 240000

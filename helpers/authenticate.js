@@ -11,7 +11,7 @@ const Email = require('email-templates')
 module.exports.verifyToken = async (token) => {
   let domain = null
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET)
+    const decoded = jwt.verify(token, process.env.AUTHSECRET)
     domain = decoded.sub
   } catch (e) {
     return null
@@ -28,7 +28,7 @@ module.exports.verifyToken = async (token) => {
 module.exports.getTokenDomain = async (token) => {
   let domain = null
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET)
+    const decoded = jwt.verify(token, process.env.AUTHSECRET)
     domain = decoded.sub
   } catch (e) {
     return null
