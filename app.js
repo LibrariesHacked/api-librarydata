@@ -4,9 +4,9 @@ const express = require('express')
 const app = express()
 
 const authenticate = require('./routes/authenticate')
-const services = require('./routes/services')
-const schemas = require('./routes/schemas')
 const libraries = require('./routes/libraries')
+const schemas = require('./routes/schemas')
+const services = require('./routes/services')
 
 require('dotenv').config()
 require('dotenv-defaults').config()
@@ -24,9 +24,9 @@ app.use(express.json())
 app.use(express.text({ type: 'text/csv' }))
 
 app.use('/authenticate', authenticate)
+app.use('/libraries', libraries)
 app.use('/schemas', schemas)
 app.use('/services', services)
-app.use('/libraries', libraries)
 
 const port = process.env.PORT || 3000
 const server = app.listen(port)

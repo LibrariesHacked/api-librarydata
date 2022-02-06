@@ -76,7 +76,7 @@ module.exports.getLibraries = async (serviceCodes, longitude, latitude, distance
  * @param {Array} serviceCodes An array of ONS codes
  * @returns {Array} A list of libraries
  */
- module.exports.getLibrariesSchema = async (serviceCodes) => {
+module.exports.getLibrariesSchema = async (serviceCodes) => {
   const services = serviceCodes ? serviceCodes.split('|') : []
   let libraries = []
   try {
@@ -106,9 +106,7 @@ module.exports.getNearestLibraries = async (longitude, latitude, limit) => {
     const query = 'select ' + viewFieldsGeo.join(', ') + ',  st_distance(st_transform(st_setsrid(st_makepoint($1, $2), 4326), 27700), st_setsrid(st_makepoint(easting, northing), 27700)) as distance from vw_libraries_geo where year_closed is null order by distance asc limit $3'
     const { rows } = await pool.query(query, [longitude, latitude, limit])
     if (rows.length > 0) libraries = rows
-  } catch (e) {
-    console.log(e.message)
-  }
+  } catch (e) { }
   return libraries
 }
 

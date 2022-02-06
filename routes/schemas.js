@@ -1,41 +1,29 @@
 const express = require('express')
 const router = express.Router()
 const token = require('../middleware/token')
-const { Parser } = require('json2csv')
 
 const authHelper = require('../helpers/authenticate')
 const githubHelper = require('../helpers/github')
+const schemaHelper = require('../helpers/schema')
 
 const localAuthorityModel = require('../models/localAuthority')
-const libraryModel = require('../models/library')
-
-router.get('/libraries', async (req, res) => {
-  const libraries = await libraryModel.getLibrariesSchema()
-  if (req.accepts('text/csv')) {
-    const fields = libraryModel.getSchemaFields()
-    const parser = new Parser({ fields })
-    res.send(parser.parse(libraries))
-  } else {
-    res.json(libraries)
-  }
-})
 
 router.get('/libraries/:service_code', async (req, res) => {
-  const libraries = await libraryModel.getLibrariesSchema(req.params.service_code.toUpperCase())
-  if (req.accepts('text/csv')) {
-    const fields = libraryModel.getSchemaFields()
-    const parser = new Parser({ fields })
-    res.send(parser.parse(libraries))
-  } else {
-    res.json(libraries)
-  }
+  const serviceCode = req.params.service_code.toUpperCase()
+  
+  const localAuthorities = await localAuthorityModel.getLocalAuthoritiesByCodes([serviceCode])
+  if (localAuthorities.length < 1) return res.sendStatus(400)
+
+  const slug = localAuthorityModel.getLocalAuthoritySlugFromName(localAuthorities[0].name)
+  const content = await schemaHelper.getFileFromUrl(`https://raw.githubusercontent.com/LibrariesHacked/librarydata-db/main/data/schemas/libraries/${slug}.csv`)
+  res.send(content)
 })
 
 router.put('/libraries/:service_code', token.verifyToken, async (req, res) => {
   if (!authHelper.verifyServiceCodeAccess(req.params.service_code.toUpperCase(), req.claims)) return res.sendStatus(403)
 
-  const csvData = req.body
   const serviceCode = req.params.service_code.toUpperCase()
+  const csvData = req.body
   const emailDomain = await authHelper.getTokenDomain(req.token)
 
   const localAuthorities = await localAuthorityModel.getLocalAuthoritiesByCodes([serviceCode])
