@@ -35,7 +35,7 @@ router.put('/libraries/:service_code', token.verifyToken, async (req, res) => {
   // Get the file slug from the local authority code
   const slug = localAuthorityModel.getLocalAuthoritySlugFromName(localAuthorities[0].name)
 
-  const success = githubHelper.createOrUpdateFile(`data/libraries/${slug}.csv`, csvData, message, localAuthorities[0].name, `anon@${emailDomain}`)
+  const success = githubHelper.createOrUpdateFile(`data/schemas/libraries/${slug}.csv`, csvData, message, localAuthorities[0].name, `anon@${emailDomain}`)
   res.sendStatus(success ? 200 : 500)
 })
 
