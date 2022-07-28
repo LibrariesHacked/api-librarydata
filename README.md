@@ -4,7 +4,7 @@ A Node JS API to provide UK public library data for library applications.
 
 ## Getting Started
 
-These instructions will give you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on deploying the project on a live system.
+These instructions will give you a copy of the project up and running on your local machine for development and testing purposes.
 
 ### Prerequisites
 
@@ -33,4 +33,4 @@ See also the list of [contributors](https://github.com/LibrariesHacked/api-libra
 
 ## License
 
-This project is licensed under the [MIT Licence](LICENSE.md) - see the [LICENSE.md](LICENSE.md) file for details
+This project is licensed under the [MIT Licence](LICENSE.md) - see [LICENSE](LICENSE.md) for details
