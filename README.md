@@ -15,13 +15,13 @@ Requirements for the software and other tools to build, test and push
 
 Install the required packages
 
-```
+```console
 npm install
 ```
 
 The project should then be able to be run locally by running
 
-```
+```console
 npm start
 ```
 
