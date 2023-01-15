@@ -8,7 +8,8 @@ These instructions will give you a copy of the project up and running on your lo
 
 ### Prerequisites
 
-Requirements for the software and other tools to build, test and push 
+Requirements for the software and other tools to build, test and push
+
 - [Node JS](https://nodejs.org/en/)
 
 ### Installing
@@ -33,4 +34,4 @@ See also the list of [contributors](https://github.com/LibrariesHacked/api-libra
 
 ## License
 
-This project is licensed under the [MIT Licence](LICENSE.md) - see [LICENSE](LICENSE.md) for details
+This project is licensed under the [MIT Licence](LICENSE.md)
