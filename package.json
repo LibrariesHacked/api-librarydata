@@ -19,26 +19,26 @@
   "homepage": "https://github.com/LibrariesHacked/api-librarydata#readme",
   "dependencies": {
     "@octokit/rest": "^18.12.0",
-    "airtable": "^0.11.4",
+    "airtable": "^0.11.6",
     "axios": "^0.25.0",
     "dotenv": "^10.0.0",
     "dotenv-defaults": "^3.0.2",
     "email-templates": "^8.1.0",
-    "express": "^4.18.1",
+    "express": "^4.18.2",
     "feedparser": "^2.2.10",
-    "js-base64": "^3.7.2",
+    "js-base64": "^3.7.5",
     "json2csv": "^5.0.7",
     "jsonwebtoken": "^9.0.0",
     "lodash": "^4.17.21",
     "memory-cache": "^0.2.0",
     "nodemailer": "^6.7.7",
-    "pg": "^8.7.3",
+    "pg": "^8.10.0",
     "pug": "^3.0.2",
     "q": "^1.5.1",
     "request": "^2.88.2",
     "rss": "^1.2.2",
     "stream": "0.0.2",
-    "tld-extract": "^2.0.1"
+    "tld-extract": "^2.1.0"
   },
   "engines": {
     "node": "14-lts"
