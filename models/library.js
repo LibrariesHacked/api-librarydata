@@ -144,76 +144,59 @@ module.exports.getLibraries = async (
     const whereQueries = []
     let limitQuery = ''
     let offsetQuery = ''
-    let orderQuery = ' '
+    let orderQuery = ''
 
     let selectFields = [...viewFieldsSchemaExtended]
 
     params.forEach((param, i) => {
       const idx = i + 1
-      if (param[0] === 'limit') limitQuery = 'limit $' + idx + ' '
+      if (param[0] === 'limit') limitQuery = `limit $${idx}`
       if (param[0] === 'page') {
         params[i][1] = limit * (page - 1) // Calculate offset from the page and limit
-        offsetQuery = 'offset $' + idx
+        offsetQuery = `offset $${idx}`
       }
     })
 
-    if (viewFieldsSchemaExtended.indexOf('"' + sort + '"') !== -1)
-      orderQuery =
-        'order by ' +
-        '"' +
-        sort +
-        '"' +
-        ' ' +
-        (sortDirection === 'desc' ? 'desc' : 'asc') +
-        ' '
+    const sortDirectionText = sortDirection === 'desc' ? 'desc' : 'asc'
+    if (viewFieldsSchemaExtended.indexOf('"' + sort + '"') !== -1) {
+      orderQuery = `order by "${sort}" ${sortDirectionText}`
+    }
     params = params.map(p => p[1]) // Change params array just to values.
 
     if (services.length > 0) {
-      whereQueries.push(
-        '"Local authority code" in (' +
-          services
-            .map((o, oidx) => '$' + (oidx + 1 + params.length))
-            .join(',') +
-          ')'
-      )
+      const servicesText = services
+        .map((o, oidx) => '$' + (oidx + 1 + params.length))
+        .join(',')
+      whereQueries.push(`"Local authority code" in ('${servicesText})`)
       params = params.concat(services)
     }
 
     if (longitude && latitude && distance) {
+      const longitudeParam = params.length + 1
+      const latitudeParam = params.length + 2
+      const distanceParam = params.length + 3
       whereQueries.push(
-        'st_dwithin(st_transform(st_setsrid(st_makepoint($' +
-          (params.length + 1) +
-          ', $' +
-          (params.length + 2) +
-          '), 4326), 27700), st_transform(geom, 27700), $' +
-          (params.length + 3) +
-          ')'
+        `st_dwithin(st_transform(st_setsrid(st_makepoint($${longitudeParam}, $${latitudeParam}), 4326), 27700), st_transform(geom, 27700), $${distanceParam})`
       )
       params = params.concat([longitude, latitude, distance])
       selectFields.push(
-        'round(st_distance(st_transform(st_setsrid(st_makepoint($' +
-          (params.length + 1) +
-          ', $' +
-          (params.length + 2) +
-          '), 4326), 27700), st_transform(geom, 27700))) as distance'
+        `round(st_distance(st_transform(st_setsrid(st_makepoint($${longitudeParam}, $${latitudeParam}), 4326), 27700), st_transform(geom, 27700))) as distance`
       )
-      params = params.concat([longitude, latitude])
+
+      if (sort === 'distance') orderQuery = `order by distance ${sortDirectionText}`
     }
 
     if (!closed) whereQueries.push('"Year closed" is null')
 
-    const query = `select ${selectFields.join(
-      ', '
-    )}, count(*) OVER() AS total from vw_schemas_libraries_extended ${
-      whereQueries.length > 0 ? 'where ' + whereQueries.join(' and ') + ' ' : ''
-    }${orderQuery}${limitQuery}${offsetQuery}`
+    const selectFieldsText = selectFields.join(', ')
+    const whereQueriesText =
+      whereQueries.length > 0 ? `where ${whereQueries.join(' and ')}` : ''
+    const query = `select ${selectFieldsText}, count(*) OVER() AS total from vw_schemas_libraries_extended ${whereQueriesText} ${orderQuery} ${limitQuery} ${offsetQuery}`
 
     const { rows } = await pool.query(query, params)
 
     libraries = rows
-  } catch (e) {
-    console.log(e)
-  }
+  } catch (e) {}
   return libraries
 }
 
