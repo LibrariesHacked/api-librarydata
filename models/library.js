@@ -167,7 +167,7 @@ module.exports.getLibraries = async (
       const servicesText = services
         .map((o, oidx) => '$' + (oidx + 1 + params.length))
         .join(',')
-      whereQueries.push(`"Local authority code" in ('${servicesText})`)
+      whereQueries.push(`"Local authority code" in (${servicesText})`)
       params = params.concat(services)
     }
 
