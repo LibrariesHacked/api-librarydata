@@ -109,7 +109,7 @@ module.exports.getSchemaFields = () =>
 
 /**
  * Gets a list of libraries
- * @param {Array} serviceCodes An array of ONS codes
+ * @param {Array} serviceCodes An array of GSS codes
  * @param {numeric} longitude A longitude coordinate value
  * @param {numeric} latitude A latitude coordinate value
  * @param {numeric} distance A distance in metres to limit the libraries to
@@ -183,7 +183,8 @@ module.exports.getLibraries = async (
         `round(st_distance(st_transform(st_setsrid(st_makepoint($${longitudeParam}, $${latitudeParam}), 4326), 27700), st_transform(geom, 27700))) as distance`
       )
 
-      if (sort === 'distance') orderQuery = `order by distance ${sortDirectionText}`
+      if (sort === 'distance')
+        orderQuery = `order by distance ${sortDirectionText}`
     }
 
     if (!closed) whereQueries.push('"Year closed" is null')
@@ -268,6 +269,30 @@ module.exports.getLibraryById = async id => {
       ' ' +
       'from vw_schemas_libraries_extended where id = $1'
     const { rows } = await pool.query(query, [id])
+    if (rows.length > 0) library = rows[0]
+  } catch (e) {}
+  return library
+}
+
+/**
+ * Get library details by the system name (slug)
+ * @param {serviceSystemName}
+ * @param {librarySystemName}
+ * @returns {object} A library object
+ */
+module.exports.getLibraryBySystemName = async (
+  serviceSystemName,
+  librarySystemName
+) => {
+  let library = null
+  try {
+    const query = `select ${viewFieldsSchemaExtended.join(
+      ', '
+    )} from vw_schemas_libraries_extended where lower(regexp_replace("Local authority", '[. ,:-]+', '-', 'g')) = $1 and lower(regexp_replace("Library name", '[. ,:-]+', '-', 'g')) = $2`
+    const { rows } = await pool.query(query, [
+      serviceSystemName,
+      librarySystemName
+    ])
     if (rows.length > 0) library = rows[0]
   } catch (e) {}
   return library

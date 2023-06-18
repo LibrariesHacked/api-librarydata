@@ -14,9 +14,19 @@ router.get('/', async (req, res) => {
   const page = req.query.page || 1
   const sort = req.query.sort || 'id'
   const sortDirection = req.query.direction || 'asc'
-  const closed = (req.query.closed === 'true')
+  const closed = req.query.closed === 'true'
 
-  let libraries = await libraryModel.getLibraries(serviceCodes, longitude, latitude, distance, limit, page, sort, sortDirection, closed)
+  let libraries = await libraryModel.getLibraries(
+    serviceCodes,
+    longitude,
+    latitude,
+    distance,
+    limit,
+    page,
+    sort,
+    sortDirection,
+    closed
+  )
   res.setHeader('Access-Control-Expose-Headers', 'X-Total-Count, X-Page')
   res.setHeader('X-Total-Count', libraries.length > 0 ? libraries[0].total : 0)
   res.setHeader('X-Page', page)
@@ -29,7 +39,11 @@ router.get('/nearest', async (req, res) => {
   const latitude = req.query.latitude || null
   const limit = req.query.limit || 1
 
-  const libraries = await libraryModel.getNearestLibraries(longitude, latitude, limit)
+  const libraries = await libraryModel.getNearestLibraries(
+    longitude,
+    latitude,
+    limit
+  )
   res.json(libraries)
 })
 
@@ -45,7 +59,9 @@ router.get('/schema', async (req, res) => {
 })
 
 router.get('/schema/:service_code', async (req, res) => {
-  const libraries = await libraryModel.getLibrariesSchema(req.params.service_code.toUpperCase())
+  const libraries = await libraryModel.getLibrariesSchema(
+    req.params.service_code.toUpperCase()
+  )
   if (req.accepts('text/csv')) {
     const fields = libraryModel.getSchemaFields()
     const parser = new Parser({ fields })
@@ -57,9 +73,28 @@ router.get('/schema/:service_code', async (req, res) => {
 
 router.get('/:id', cache(3600), async (req, res) => {
   const library = await libraryModel.getLibraryById(req.params.id)
-  if (library == null) return res.status(404).json({ errors: [{ status: '404', title: 'Not Found' }] })
+  if (library == null)
+    return res
+      .status(404)
+      .json({ errors: [{ status: '404', title: 'Not Found' }] })
   res.json(library)
 })
+
+router.get(
+  '/:service_system_name/:library_system_name',
+  cache(3600),
+  async (req, res) => {
+    const library = await libraryModel.getLibraryBySystemName(
+      req.params.service_system_name,
+      req.params.library_system_name
+    )
+    if (library == null)
+      return res
+        .status(404)
+        .json({ errors: [{ status: '404', title: 'Not Found' }] })
+    res.json(library)
+  }
+)
 
 router.get('/:z/:x/:y.mvt', cache(3600), async (req, res) => {
   const { z, x, y } = req.params
