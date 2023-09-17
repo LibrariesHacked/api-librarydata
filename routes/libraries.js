@@ -4,6 +4,7 @@ const { Parser } = require('json2csv')
 
 const cache = require('../middleware/cache')
 const libraryModel = require('../models/library')
+const utils = require('../helpers/utils')
 
 router.get('/', async (req, res) => {
   const serviceCodes = req.query.service_codes || null
@@ -31,7 +32,12 @@ router.get('/', async (req, res) => {
   res.setHeader('X-Total-Count', libraries.length > 0 ? libraries[0].total : 0)
   res.setHeader('X-Page', page)
   libraries = libraries.map(({ total, ...library }) => library) // Remove total column from results
-  res.json(libraries)
+  if (req.get('Accepts') === 'application/geo+json') {
+    const geojson = utils.convertJsonToGeoJson(libraries, 'Longitude', 'Latitude')
+    res.json(geojson)
+  } else {
+    res.json(libraries)
+  }
 })
 
 router.get('/nearest', async (req, res) => {
