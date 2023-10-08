@@ -8,7 +8,7 @@ const Email = require('email-templates')
  * @param {string} token A JSON web token
  * @returns {object|null} A claims object
  */
-module.exports.verifyToken = async (token) => {
+module.exports.verifyToken = async token => {
   let domain = null
   try {
     const decoded = jwt.verify(token, process.env.AUTHSECRET)
@@ -25,7 +25,7 @@ module.exports.verifyToken = async (token) => {
  * @param {string} token
  * @returns {string} Email domain
  */
-module.exports.getTokenDomain = async (token) => {
+module.exports.getTokenDomain = async token => {
   let domain = null
   try {
     const decoded = jwt.verify(token, process.env.AUTHSECRET)
@@ -41,13 +41,14 @@ module.exports.getTokenDomain = async (token) => {
  * @param {string} domain A top level domain
  * @returns {object} A claims object
  */
-module.exports.getDomainClaims = async (domain) => {
+module.exports.getDomainClaims = async domain => {
   let claims = { admin: false, codes: [] }
   try {
     const query = 'select * from authentication where domain = $1 limit 1'
     const { rows } = await pool.query(query, [domain])
-    if (rows.length > 0) claims = { admin: rows[0].admin, codes: rows[0].authority_codes }
-  } catch (e) { }
+    if (rows.length > 0)
+      claims = { admin: rows[0].admin, codes: rows[0].authority_codes }
+  } catch (e) {}
   return claims
 }
 
@@ -59,7 +60,12 @@ module.exports.getDomainClaims = async (domain) => {
  */
 module.exports.sendMagicLink = async (email, claims, website) => {
   const domain = email.split('@').pop()
-  const token = jwt.sign(claims, process.env.AUTHSECRET, { audience: [website], expiresIn: '30d', issuer: 'api.librarydata.uk', subject: domain })
+  const token = jwt.sign(claims, process.env.AUTHSECRET, {
+    audience: [website],
+    expiresIn: '30d',
+    issuer: 'api.librarydata.uk',
+    subject: domain
+  })
 
   const mailConfig = {
     host: process.env.SMTPSERVER,
@@ -81,17 +87,16 @@ module.exports.sendMagicLink = async (email, claims, website) => {
   })
 
   try {
-    emailTemplate
-      .send({
-        template: website + '-login',
-        message: {
-          to: email
-        },
-        locals: {
-          website: website,
-          token: token
-        }
-      })
+    emailTemplate.send({
+      template: website + '-login',
+      message: {
+        to: email
+      },
+      locals: {
+        website: website,
+        token: token
+      }
+    })
   } catch (e) {
     return false
   }
@@ -106,5 +111,5 @@ module.exports.sendMagicLink = async (email, claims, website) => {
  * @returns {boolean} Access
  */
 module.exports.verifyServiceCodeAccess = async (serviceCode, claims) => {
-  return (claims.codes.indexOf(serviceCode) === -1 && claims.admin === false)
+  return claims.codes.indexOf(serviceCode) === -1 && claims.admin === false
 }

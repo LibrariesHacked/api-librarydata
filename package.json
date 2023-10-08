@@ -39,8 +39,5 @@
     "rss": "^1.2.2",
     "stream": "0.0.2",
     "tld-extract": "^2.1.0"
-  },
-  "engines": {
-    "node": "14-lts"
   }
 }

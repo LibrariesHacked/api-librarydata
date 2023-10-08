@@ -5,7 +5,7 @@ const mcache = require('memory-cache')
  * @param {int} duration
  * @returns {null}
  */
-const cache = (duration) => {
+const cache = duration => {
   return (req, res, next) => {
     const key = '__express__' + req.originalUrl || req.url
     const cachedBody = mcache.get(key)
@@ -13,7 +13,7 @@ const cache = (duration) => {
       res.send(cachedBody)
     } else {
       res.sendResponse = res.send
-      res.send = (body) => {
+      res.send = body => {
         mcache.put(key, body, duration * 1000)
         res.sendResponse(body)
       }

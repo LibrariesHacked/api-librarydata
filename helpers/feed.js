@@ -24,7 +24,7 @@ module.exports.getFeedFromUrls = async (urls, title, customNamespaces) => {
  * @param {string} id ID of the YouTube channel/playlist/user
  * @returns {string} A feed URL
  */
-module.exports.getYouTubeFeedUrlFromId = (id) => {
+module.exports.getYouTubeFeedUrlFromId = id => {
   const youTubeUrl = process.env.YOUTUBE_FEED_URL
   const idTypes = {
     UC: 'channel_id',
@@ -38,7 +38,7 @@ module.exports.getYouTubeFeedUrlFromId = (id) => {
  * @param {string} id ID of the Flickr user
  * @returns {string} A feed URL
  */
-module.exports.getFlickrFeedUrlFromId = (id) => {
+module.exports.getFlickrFeedUrlFromId = id => {
   return process.env.FLICKR_FEED_URL + id
 }
 
@@ -47,7 +47,7 @@ module.exports.getFlickrFeedUrlFromId = (id) => {
  * @param {Array} ids An array of YouTube IDs
  * @returns {Array} A set of feed URLs
  */
-module.exports.getYouTubeFeedUrlArrayFromIds = (ids) => {
+module.exports.getYouTubeFeedUrlArrayFromIds = ids => {
   return ids.map(id => this.getYouTubeFeedUrlFromId(id))
 }
 
@@ -56,12 +56,16 @@ module.exports.getYouTubeFeedUrlArrayFromIds = (ids) => {
  * @param {Array} ids An array of YouTube IDs
  * @returns {object} A combined feed
  */
-module.exports.getFeedFromYouTubeIds = async (ids) => {
+module.exports.getFeedFromYouTubeIds = async ids => {
   const urls = this.getYouTubeFeedUrlArrayFromIds(ids)
-  const feed = await this.getFeedFromUrls(urls, 'YouTube libraries | Libraries at home', {
-    yt: 'http://www.youtube.com/xml/schemas/2015',
-    media: 'http://search.yahoo.com/mrss/'
-  })
+  const feed = await this.getFeedFromUrls(
+    urls,
+    'YouTube libraries | Libraries at home',
+    {
+      yt: 'http://www.youtube.com/xml/schemas/2015',
+      media: 'http://search.yahoo.com/mrss/'
+    }
+  )
   return feed
 }
 
@@ -70,7 +74,11 @@ module.exports.getFeedFromYouTubeIds = async (ids) => {
  * @param {*} urls A set of Blog feed URLs
  * @returns {object} A combined feed
  */
-module.exports.getFeedFromBlogUrls = async (urls) => {
-  const feed = await this.getFeedFromUrls(urls, 'Library blogs | Libraries at home', {})
+module.exports.getFeedFromBlogUrls = async urls => {
+  const feed = await this.getFeedFromUrls(
+    urls,
+    'Library blogs | Libraries at home',
+    {}
+  )
   return feed
 }
