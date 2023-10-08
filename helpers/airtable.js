@@ -7,7 +7,9 @@ const Airtable = require('airtable')
  * @returns {Array} An array of records
  */
 module.exports.getAllRecordsInTable = async (baseName, table) => {
-  const base = new Airtable({ apiKey: process.env.AIRTABLE_API_KEY }).base(baseName)
+  const base = new Airtable({ apiKey: process.env.AIRTABLE_API_KEY }).base(
+    baseName
+  )
   const allRecords = await base(table).select({}).all()
   return allRecords.map(r => r.fields)
 }
@@ -21,12 +23,21 @@ module.exports.getAllRecordsInTable = async (baseName, table) => {
  * @param {string} filterFieldValue The value to filter the filter field by
  * @returns {Array} An array of records
  */
-module.exports.getSingleFieldArrayAllRecordsInTable = async (baseName, table, fieldName, filterFieldName, filterFieldValue) => {
-  const base = new Airtable({ apiKey: process.env.AIRTABLE_API_KEY }).base(baseName)
+module.exports.getSingleFieldArrayAllRecordsInTable = async (
+  baseName,
+  table,
+  fieldName,
+  filterFieldName,
+  filterFieldValue
+) => {
+  const base = new Airtable({ apiKey: process.env.AIRTABLE_API_KEY }).base(
+    baseName
+  )
   let select = {}
   if (filterFieldName) {
     select = {
-      filterByFormula: '({' + filterFieldName + "} = '" + filterFieldValue + "')"
+      filterByFormula:
+        '({' + filterFieldName + "} = '" + filterFieldValue + "')"
     }
   }
   try {
@@ -45,13 +56,22 @@ module.exports.getSingleFieldArrayAllRecordsInTable = async (baseName, table, fi
  * @param {string} fieldValue The value to filter the filter field by
  * @returns
  */
-module.exports.getRecordInTable = async (baseName, table, fieldName, fieldValue) => {
-  const base = new Airtable({ apiKey: process.env.AIRTABLE_API_KEY }).base(baseName)
+module.exports.getRecordInTable = async (
+  baseName,
+  table,
+  fieldName,
+  fieldValue
+) => {
+  const base = new Airtable({ apiKey: process.env.AIRTABLE_API_KEY }).base(
+    baseName
+  )
 
-  const records = await base(table).select({
-    maxRecords: 1,
-    filterByFormula: '({' + fieldName + "} = '" + fieldValue + "')"
-  }).all()
+  const records = await base(table)
+    .select({
+      maxRecords: 1,
+      filterByFormula: '({' + fieldName + "} = '" + fieldValue + "')"
+    })
+    .all()
 
   if (records.length > 0) return records[0].fields
   return null

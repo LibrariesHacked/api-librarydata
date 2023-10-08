@@ -8,7 +8,13 @@ const { Base64 } = require('js-base64')
  * @param {string} message A commit message that describes the change
  * @returns {boolean} Whether the update was successful.
  */
-module.exports.createOrUpdateFile = async (path, file, message, authorName, authorEmail) => {
+module.exports.createOrUpdateFile = async (
+  path,
+  file,
+  message,
+  authorName,
+  authorEmail
+) => {
   const content = Base64.encode(file)
 
   const octokit = new Octokit({
@@ -43,5 +49,5 @@ module.exports.createOrUpdateFile = async (path, file, message, authorName, auth
     sha
   })
 
-  return (result?.status === 200)
+  return result?.status === 200
 }

@@ -14,7 +14,7 @@ router.post('/', async function (req, res) {
   const domain = email.split('@').pop()
   const claims = await authHelper.getDomainClaims(domain)
   if (claims.codes.length === 0 && !claims.admin) return res.sendStatus(401)
-  
+
   const emailSent = await authHelper.sendMagicLink(email, claims, website)
   if (!emailSent) return res.status(500)
   res.sendStatus(200)

@@ -28,6 +28,7 @@ const viewFieldsGeo = [
   'rural_urban_classification',
   'imd'
 ]
+
 const viewFieldsSchema = [
   '"Local authority"',
   '"Library name"',
@@ -97,7 +98,7 @@ const viewFieldsSchemaExtended = [
   '"Email address"',
   '"Longitude"',
   '"Latitude"',
-  'id'
+  "'id'"
 ]
 
 /**

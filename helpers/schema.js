@@ -5,7 +5,7 @@ const axios = require('axios')
  * @param {string} url The file URL
  * @returns {string} The file contents
  */
-module.exports.getFileFromUrl = async (url) => {
+module.exports.getFileFromUrl = async url => {
   const response = await axios.get(url)
   return response.data
 }

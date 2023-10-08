@@ -28,13 +28,17 @@ router.get('/', async (req, res) => {
     sortDirection,
     closed
   )
+
+  if (!libraries || libraries.length === 0) return res.status(404)
+
   res.setHeader('Access-Control-Expose-Headers', 'X-Total-Count, X-Page')
   res.setHeader('X-Total-Count', libraries.length > 0 ? libraries[0].total : 0)
   res.setHeader('X-Page', page)
+
   libraries = libraries.map(({ total, ...library }) => library) // Remove total column from results
+
   if (req.get('Accepts') === 'application/geo+json') {
-    const geojson = utils.convertJsonToGeoJson(libraries, 'Longitude', 'Latitude')
-    res.json(geojson)
+    res.json(utils.convertJsonToGeoJson(libraries, 'Longitude', 'Latitude'))
   } else {
     res.json(libraries)
   }
@@ -78,11 +82,10 @@ router.get('/schema/:service_code', async (req, res) => {
 })
 
 router.get('/:id', cache(3600), async (req, res) => {
-  const library = await libraryModel.getLibraryById(req.params.id)
-  if (library == null)
-    return res
-      .status(404)
-      .json({ errors: [{ status: '404', title: 'Not Found' }] })
+  const id = req.params.id
+  if (!id) return res.status(400)
+  const library = await libraryModel.getLibraryById(id)
+  if (library == null) return res.status(404).send(null)
   res.json(library)
 })
 
@@ -90,14 +93,16 @@ router.get(
   '/:service_system_name/:library_system_name',
   cache(3600),
   async (req, res) => {
+    const librarySystemName = req.params.library_system_name
+    const serviceSystemName = req.params.service_system_name
+
+    if (!librarySystemName || !serviceSystemName) return res.status(400)
+
     const library = await libraryModel.getLibraryBySystemName(
-      req.params.service_system_name,
-      req.params.library_system_name
+      serviceSystemName,
+      librarySystemName
     )
-    if (library == null)
-      return res
-        .status(404)
-        .json({ errors: [{ status: '404', title: 'Not Found' }] })
+    if (!library) return res.status(404).send(null)
     res.json(library)
   }
 )
