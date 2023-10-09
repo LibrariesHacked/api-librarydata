@@ -6,6 +6,9 @@ const cache = require('../middleware/cache')
 const libraryModel = require('../models/library')
 const utils = require('../helpers/utils')
 
+/*
+  Returns a list of libraries
+*/
 router.get('/', async (req, res) => {
   const serviceCodes = req.query.service_codes || null
   const longitude = req.query.longitude || null
@@ -44,6 +47,9 @@ router.get('/', async (req, res) => {
   }
 })
 
+/* 
+  Returns a list of libraries for a location
+*/
 router.get('/nearest', async (req, res) => {
   const longitude = req.query.longitude || null
   const latitude = req.query.latitude || null
@@ -107,6 +113,9 @@ router.get(
   }
 )
 
+/* 
+  Returns a vector tile for a given x, y, z
+*/
 router.get('/:z/:x/:y.mvt', cache(3600), async (req, res) => {
   const { z, x, y } = req.params
   const tile = await libraryModel.getTileData(x, y, z)
