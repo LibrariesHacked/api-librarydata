@@ -98,7 +98,7 @@ const viewFieldsSchemaExtended = [
   '"Email address"',
   '"Longitude"',
   '"Latitude"',
-  "'id'"
+  '"id"'
 ]
 
 /**
