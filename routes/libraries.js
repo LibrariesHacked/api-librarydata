@@ -40,7 +40,7 @@ router.get('/', async (req, res) => {
 
   libraries = libraries.map(({ total, ...library }) => library) // Remove total column from results
 
-  if (req.get('Accepts') === 'application/geo+json') {
+  if (req.get('Accept') === 'application/geo+json') {
     res.json(utils.convertJsonToGeoJson(libraries, 'Longitude', 'Latitude'))
   } else {
     res.json(libraries)
