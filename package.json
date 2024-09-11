@@ -20,7 +20,7 @@
   "dependencies": {
     "@octokit/rest": "^18.12.0",
     "airtable": "^0.11.6",
-    "axios": "^1.6.0",
+    "axios": "^1.7.4",
     "dotenv": "^10.0.0",
     "dotenv-defaults": "^3.0.2",
     "email-templates": "^8.1.0",
