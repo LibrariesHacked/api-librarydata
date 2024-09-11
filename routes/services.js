@@ -57,48 +57,39 @@ router.get('/airtable/:service_code', cache(3600), async (req, res) => {
 /**
  * Get a single blog feed from all existing feeds
  */
-router.get(
-  '/airtable/feeds/blogs.:ext(json|xml)',
-  cache(3600),
-  async (req, res) => {
-    const blogUrls = await airtableHelper.getSingleFieldArrayAllRecordsInTable(
-      process.env.AIRTABLE_LIBRARY_SERVICES_BASE_ID,
-      process.env.AIRTABLE_LIBRARY_SERVICES_TABLE_NAME,
-      'Blog RSS feed',
-      req.query.filter_field_name,
-      req.query.filter_field_value
-    )
-    const feed = await feedHelper.getFeedFromBlogUrls(blogUrls)
-    if (req.params.ext === 'xml') {
-      res.set('Content-Type', 'text/xml')
-      return res.send(feed.xml())
-    }
-    res.json(feed)
+router.get('/airtable/feeds/blogs{.:ext}', cache(3600), async (req, res) => {
+  const blogUrls = await airtableHelper.getSingleFieldArrayAllRecordsInTable(
+    process.env.AIRTABLE_LIBRARY_SERVICES_BASE_ID,
+    process.env.AIRTABLE_LIBRARY_SERVICES_TABLE_NAME,
+    'Blog RSS feed',
+    req.query.filter_field_name,
+    req.query.filter_field_value
+  )
+  const feed = await feedHelper.getFeedFromBlogUrls(blogUrls)
+  if (req.params.ext === 'xml') {
+    res.set('Content-Type', 'text/xml')
+    return res.send(feed.xml())
   }
-)
+  res.json(feed)
+})
 
 /**
  * Get a single youtube feed from all existing feeds
  */
-router.get(
-  '/airtable/feeds/youtube.:ext(json|xml)',
-  cache(3600),
-  async (req, res) => {
-    const youtubeIds =
-      await airtableHelper.getSingleFieldArrayAllRecordsInTable(
-        process.env.AIRTABLE_LIBRARY_SERVICES_BASE_ID,
-        process.env.AIRTABLE_LIBRARY_SERVICES_TABLE_NAME,
-        'YouTube ID',
-        req.query.filter_field_name,
-        req.query.filter_field_value
-      )
-    const feed = await feedHelper.getFeedFromYouTubeIds(youtubeIds)
-    if (req.params.ext === 'xml') {
-      res.set('Content-Type', 'text/xml')
-      return res.send(feed.xml())
-    }
-    res.json(feed)
+router.get('/airtable/feeds/youtube{.:ext}', cache(3600), async (req, res) => {
+  const youtubeIds = await airtableHelper.getSingleFieldArrayAllRecordsInTable(
+    process.env.AIRTABLE_LIBRARY_SERVICES_BASE_ID,
+    process.env.AIRTABLE_LIBRARY_SERVICES_TABLE_NAME,
+    'YouTube ID',
+    req.query.filter_field_name,
+    req.query.filter_field_value
+  )
+  const feed = await feedHelper.getFeedFromYouTubeIds(youtubeIds)
+  if (req.params.ext === 'xml') {
+    res.set('Content-Type', 'text/xml')
+    return res.send(feed.xml())
   }
-)
+  res.json(feed)
+})
 
 module.exports = router
