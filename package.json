@@ -18,7 +18,7 @@
   },
   "homepage": "https://github.com/LibrariesHacked/api-librarydata#readme",
   "dependencies": {
-    "@octokit/rest": "^18.12.0",
+    "@octokit/rest": "^21.1.0",
     "airtable": "^0.11.6",
     "axios": "^1.7.7",
     "dotenv": "^10.0.0",
