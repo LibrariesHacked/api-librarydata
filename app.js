@@ -1,15 +1,20 @@
 'use strict'
 
-const express = require('express')
+import express from 'express'
+
+import authenticate from './routes/authenticate.js'
+import libraries from './routes/libraries.js'
+import schemas from './routes/schemas.js'
+import services from './routes/services.js'
+
+// Load environment variables
+import dotenv from 'dotenv'
+
+// Load environment variables with defaults
+import dotenvDefaults from 'dotenv-defaults'
 const app = express()
-
-const authenticate = require('./routes/authenticate')
-const libraries = require('./routes/libraries')
-const schemas = require('./routes/schemas')
-const services = require('./routes/services')
-
-require('dotenv').config()
-require('dotenv-defaults').config()
+dotenv.config()
+dotenvDefaults.config()
 
 // Allow cross origin
 app.use(function (req, res, next) {

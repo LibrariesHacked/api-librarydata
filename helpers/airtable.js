@@ -1,4 +1,4 @@
-const Airtable = require('airtable')
+import Airtable from 'airtable'
 
 /**
  * Gets all records and fields from a table
@@ -6,7 +6,7 @@ const Airtable = require('airtable')
  * @param {string} table The table name e.g. Library services
  * @returns {Array} An array of records
  */
-module.exports.getAllRecordsInTable = async (baseName, table) => {
+export async function getAllRecordsInTable (baseName, table) {
   const base = new Airtable({ apiKey: process.env.AIRTABLE_API_KEY }).base(
     baseName
   )
@@ -23,13 +23,13 @@ module.exports.getAllRecordsInTable = async (baseName, table) => {
  * @param {string} filterFieldValue The value to filter the filter field by
  * @returns {Array} An array of records
  */
-module.exports.getSingleFieldArrayAllRecordsInTable = async (
+export async function getSingleFieldArrayAllRecordsInTable (
   baseName,
   table,
   fieldName,
   filterFieldName,
   filterFieldValue
-) => {
+) {
   const base = new Airtable({ apiKey: process.env.AIRTABLE_API_KEY }).base(
     baseName
   )
@@ -56,12 +56,7 @@ module.exports.getSingleFieldArrayAllRecordsInTable = async (
  * @param {string} fieldValue The value to filter the filter field by
  * @returns
  */
-module.exports.getRecordInTable = async (
-  baseName,
-  table,
-  fieldName,
-  fieldValue
-) => {
+export async function getRecordInTable (baseName, table, fieldName, fieldValue) {
   const base = new Airtable({ apiKey: process.env.AIRTABLE_API_KEY }).base(
     baseName
   )

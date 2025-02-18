@@ -1,4 +1,4 @@
-const pool = require('../helpers/database')
+import { query as _query } from '../helpers/database'
 
 const tableFields = ['code', 'name', 'nice_name']
 
@@ -6,12 +6,12 @@ const tableFields = ['code', 'name', 'nice_name']
  * Gets the local library authorities in the database
  * @returns {Array} Set of local authorities
  */
-module.exports.getLocalAuthorities = async () => {
+export async function getLocalAuthorities () {
   let services = []
   try {
     const query =
       'select ' + tableFields.join(', ') + ' from schemas_local_authority'
-    const { rows } = await pool.query(query)
+    const { rows } = await _query(query)
     if (rows.length > 0) services = rows
     services = rows
   } catch (e) {}
@@ -23,14 +23,14 @@ module.exports.getLocalAuthorities = async () => {
  * @param {Array} codes An array of ONS codes
  * @returns {Array} Set of local authorities
  */
-module.exports.getLocalAuthoritiesByCodes = async codes => {
+export async function getLocalAuthoritiesByCodes (codes) {
   let services = []
   try {
     const query =
       'select ' +
       tableFields.join(', ') +
       ' from schemas_local_authority where code = ANY($1::text[])'
-    const { rows } = await pool.query(query, [codes])
+    const { rows } = await _query(query, [codes])
     if (rows.length > 0) services = rows
     services = rows
   } catch (e) {
@@ -39,7 +39,7 @@ module.exports.getLocalAuthoritiesByCodes = async codes => {
   return services
 }
 
-module.exports.getLocalAuthoritySlugFromName = name => {
+export function getLocalAuthoritySlugFromName (name) {
   return name
     .trim()
     .replace(/[^\w\s]/gi, '')

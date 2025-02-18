@@ -1,17 +1,21 @@
-const express = require('express')
-const router = express.Router()
+import { Router } from 'express'
 
-const airtableHelper = require('../helpers/airtable')
-const feedHelper = require('../helpers/feed')
-const cache = require('../middleware/cache')
-const token = require('../middleware/token')
-const localAuthorityModel = require('../models/localAuthority')
+import {
+  getAllRecordsInTable,
+  getRecordInTable,
+  getSingleFieldArrayAllRecordsInTable
+} from '../helpers/airtable'
+import { getFeedFromBlogUrls, getFeedFromYouTubeIds } from '../helpers/feed'
+import cache from '../middleware/cache.js'
+import { accessToken } from '../middleware/token.js'
+import { getLocalAuthorities } from '../models/localAuthority.js'
+const router = Router()
 
 /**
  * Get services including access rights for editing
  */
-router.get('/', token.accessToken, async (req, res, next) => {
-  const services = await localAuthorityModel.getLocalAuthorities()
+router.get('/', accessToken, async (req, res, next) => {
+  const services = await getLocalAuthorities()
   services.forEach(
     service =>
       (service.editable =
@@ -27,7 +31,7 @@ router.get('/', token.accessToken, async (req, res, next) => {
  */
 router.get('/airtable/', cache(3600), async (req, res) => {
   const fields = req.query.fields ? req.query.fields.split(',') : null
-  const records = await airtableHelper.getAllRecordsInTable(
+  const records = await getAllRecordsInTable(
     process.env.AIRTABLE_LIBRARY_SERVICES_BASE_ID,
     process.env.AIRTABLE_LIBRARY_SERVICES_TABLE_NAME
   )
@@ -45,7 +49,7 @@ router.get('/airtable/', cache(3600), async (req, res) => {
  * Gets a single service from airtable
  */
 router.get('/airtable/:service_code', cache(3600), async (req, res) => {
-  const record = await airtableHelper.getRecordInTable(
+  const record = await getRecordInTable(
     process.env.AIRTABLE_LIBRARY_SERVICES_BASE_ID,
     process.env.AIRTABLE_LIBRARY_SERVICES_TABLE_NAME,
     process.env.AIRTABLE_LIBRARY_SERVICES_CODE_FIELD,
@@ -58,14 +62,14 @@ router.get('/airtable/:service_code', cache(3600), async (req, res) => {
  * Get a single blog feed from all existing feeds
  */
 router.get('/airtable/feeds/blogs{.:ext}', cache(3600), async (req, res) => {
-  const blogUrls = await airtableHelper.getSingleFieldArrayAllRecordsInTable(
+  const blogUrls = await getSingleFieldArrayAllRecordsInTable(
     process.env.AIRTABLE_LIBRARY_SERVICES_BASE_ID,
     process.env.AIRTABLE_LIBRARY_SERVICES_TABLE_NAME,
     'Blog RSS feed',
     req.query.filter_field_name,
     req.query.filter_field_value
   )
-  const feed = await feedHelper.getFeedFromBlogUrls(blogUrls)
+  const feed = await getFeedFromBlogUrls(blogUrls)
   if (req.params.ext === 'xml') {
     res.set('Content-Type', 'text/xml')
     return res.send(feed.xml())
@@ -77,14 +81,14 @@ router.get('/airtable/feeds/blogs{.:ext}', cache(3600), async (req, res) => {
  * Get a single youtube feed from all existing feeds
  */
 router.get('/airtable/feeds/youtube{.:ext}', cache(3600), async (req, res) => {
-  const youtubeIds = await airtableHelper.getSingleFieldArrayAllRecordsInTable(
+  const youtubeIds = await getSingleFieldArrayAllRecordsInTable(
     process.env.AIRTABLE_LIBRARY_SERVICES_BASE_ID,
     process.env.AIRTABLE_LIBRARY_SERVICES_TABLE_NAME,
     'YouTube ID',
     req.query.filter_field_name,
     req.query.filter_field_value
   )
-  const feed = await feedHelper.getFeedFromYouTubeIds(youtubeIds)
+  const feed = await getFeedFromYouTubeIds(youtubeIds)
   if (req.params.ext === 'xml') {
     res.set('Content-Type', 'text/xml')
     return res.send(feed.xml())
@@ -92,4 +96,4 @@ router.get('/airtable/feeds/youtube{.:ext}', cache(3600), async (req, res) => {
   res.json(feed)
 })
 
-module.exports = router
+export default router

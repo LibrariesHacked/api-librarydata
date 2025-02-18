@@ -1,4 +1,4 @@
-const authHelper = require('../helpers/authenticate')
+import { verifyToken } from '../helpers/authenticate.js'
 
 /**
  * Add any claims and token to the request object
@@ -6,14 +6,14 @@ const authHelper = require('../helpers/authenticate')
  * @param {object} res The response object
  * @param {object} next Function to pass the request to the next stage
  */
-module.exports.accessToken = async (req, res, next) => {
+export async function accessToken (req, res, next) {
   const bearerHeader = req.headers.authorization
 
   if (bearerHeader) {
     const bearer = bearerHeader.split(' ')
     const bearerToken = bearer[1]
     req.token = bearerToken
-    req.claims = await authHelper.verifyToken(bearerToken)
+    req.claims = await verifyToken(bearerToken)
   }
   next()
 }
@@ -24,13 +24,13 @@ module.exports.accessToken = async (req, res, next) => {
  * @param {object} res The response object
  * @param {object} next Function to pass the request to the next stage
  */
-module.exports.verifyToken = async (req, res, next) => {
+export async function verifyAccessToken (req, res, next) {
   const bearerHeader = req.headers.authorization
 
   if (bearerHeader) {
     const bearer = bearerHeader.split(' ')
     const bearerToken = bearer[1]
-    const claims = await authHelper.verifyToken(bearerToken)
+    const claims = await verifyToken(bearerToken)
     if (claims) {
       req.token = bearerToken
       req.claims = claims

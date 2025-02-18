@@ -1,10 +1,19 @@
-const express = require('express')
-const router = express.Router()
-const { Parser } = require('json2csv')
+import { Router } from 'express'
+import { Parser } from 'json2csv'
 
-const cache = require('../middleware/cache')
-const libraryModel = require('../models/library')
-const utils = require('../helpers/utils')
+import cache from '../middleware/cache.js'
+import {
+  getLibraries,
+  getNearestLibraries,
+  getLibrariesSchema,
+  getSchemaFields,
+  getLibraryById,
+  getLibraryBySystemName,
+  getTileData,
+  getBuildingsTileData
+} from '../models/library.js'
+import { convertJsonToGeoJson } from '../helpers/utils.js'
+const router = Router()
 
 /*
   Returns a list of libraries
@@ -20,7 +29,7 @@ router.get('/', async (req, res) => {
   const sortDirection = req.query.direction || 'asc'
   const closed = req.query.closed === 'true'
 
-  let libraries = await libraryModel.getLibraries(
+  let libraries = await getLibraries(
     serviceCodes,
     longitude,
     latitude,
@@ -41,13 +50,13 @@ router.get('/', async (req, res) => {
   libraries = libraries.map(({ total, ...library }) => library) // Remove total column from results
 
   if (req.get('Accept') === 'application/geo+json') {
-    res.json(utils.convertJsonToGeoJson(libraries, 'Longitude', 'Latitude'))
+    res.json(convertJsonToGeoJson(libraries, 'Longitude', 'Latitude'))
   } else {
     res.json(libraries)
   }
 })
 
-/* 
+/*
   Returns a list of libraries for a location
 */
 router.get('/nearest', async (req, res) => {
@@ -55,18 +64,14 @@ router.get('/nearest', async (req, res) => {
   const latitude = req.query.latitude || null
   const limit = req.query.limit || 1
 
-  const libraries = await libraryModel.getNearestLibraries(
-    longitude,
-    latitude,
-    limit
-  )
+  const libraries = await getNearestLibraries(longitude, latitude, limit)
   res.json(libraries)
 })
 
 router.get('/schema', async (req, res) => {
-  const libraries = await libraryModel.getLibrariesSchema()
+  const libraries = await getLibrariesSchema()
   if (req.accepts('text/csv')) {
-    const fields = libraryModel.getSchemaFields()
+    const fields = getSchemaFields()
     const parser = new Parser({ fields })
     res.send(parser.parse(libraries))
   } else {
@@ -75,11 +80,11 @@ router.get('/schema', async (req, res) => {
 })
 
 router.get('/schema/:service_code', async (req, res) => {
-  const libraries = await libraryModel.getLibrariesSchema(
+  const libraries = await getLibrariesSchema(
     req.params.service_code.toUpperCase()
   )
   if (req.accepts('text/csv')) {
-    const fields = libraryModel.getSchemaFields()
+    const fields = getSchemaFields()
     const parser = new Parser({ fields })
     res.send(parser.parse(libraries))
   } else {
@@ -90,7 +95,7 @@ router.get('/schema/:service_code', async (req, res) => {
 router.get('/:id', cache(3600), async (req, res) => {
   const id = req.params.id
   if (!id) return res.status(400)
-  const library = await libraryModel.getLibraryById(id)
+  const library = await getLibraryById(id)
   if (library == null) return res.status(404).send(null)
   res.json(library)
 })
@@ -104,7 +109,7 @@ router.get(
 
     if (!librarySystemName || !serviceSystemName) return res.status(400)
 
-    const library = await libraryModel.getLibraryBySystemName(
+    const library = await getLibraryBySystemName(
       serviceSystemName,
       librarySystemName
     )
@@ -113,12 +118,12 @@ router.get(
   }
 )
 
-/* 
+/*
   Returns a vector tile for a given x, y, z
 */
 router.get('/:z/:x/:y.mvt', cache(3600), async (req, res) => {
   const { z, x, y } = req.params
-  const tile = await libraryModel.getTileData(x, y, z)
+  const tile = await getTileData(x, y, z)
   res.setHeader('Content-Type', 'application/x-protobuf')
   if (!tile) return res.status(204).send(null)
   res.send(tile)
@@ -126,10 +131,10 @@ router.get('/:z/:x/:y.mvt', cache(3600), async (req, res) => {
 
 router.get('/buildings/:z/:x/:y.mvt', cache(3600), async (req, res) => {
   const { z, x, y } = req.params
-  const tile = await libraryModel.getBuildingsTileData(x, y, z)
+  const tile = await getBuildingsTileData(x, y, z)
   res.setHeader('Content-Type', 'application/x-protobuf')
   if (!tile) return res.status(204).send(null)
   res.send(tile)
 })
 
-module.exports = router
+export default router

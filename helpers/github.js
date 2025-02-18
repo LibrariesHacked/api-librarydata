@@ -1,5 +1,5 @@
-const { Octokit } = require('@octokit/rest')
-const { Base64 } = require('js-base64')
+import { Octokit } from '@octokit/rest'
+import { Base64 } from 'js-base64'
 
 /**
  * Creates or updates a file stored in GitHub
@@ -8,13 +8,13 @@ const { Base64 } = require('js-base64')
  * @param {string} message A commit message that describes the change
  * @returns {boolean} Whether the update was successful.
  */
-module.exports.createOrUpdateFile = async (
+export async function createOrUpdateFile (
   path,
   file,
   message,
   authorName,
   authorEmail
-) => {
+) {
   const content = Base64.encode(file)
 
   const octokit = new Octokit({
@@ -26,7 +26,7 @@ module.exports.createOrUpdateFile = async (
 
   const fileResult = await octokit.repos.getContent({
     owner: organisation,
-    repo: repo,
+    repo,
     path
   })
 
@@ -34,10 +34,10 @@ module.exports.createOrUpdateFile = async (
 
   const result = await octokit.repos.createOrUpdateFileContents({
     owner: organisation,
-    repo: repo,
+    repo,
     path,
-    message: message,
-    content: content,
+    message,
+    content,
     committer: {
       name: process.env.GITHUB_ORGANISATION_BOT_NAME,
       email: process.env.GITHUB_ORGANISATION_EMAIL

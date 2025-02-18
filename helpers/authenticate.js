@@ -1,17 +1,17 @@
-const pool = require('../helpers/database')
-const jwt = require('jsonwebtoken')
-const nodemailer = require('nodemailer')
-const Email = require('email-templates')
+import { query as _query } from '../helpers/database'
+import { verify, sign } from 'jsonwebtoken'
+import { createTransport } from 'nodemailer'
+import Email from 'email-templates'
 
 /**
  * Verifies that a JWT is valid and returns the claims or null if it isn't
  * @param {string} token A JSON web token
  * @returns {object|null} A claims object
  */
-module.exports.verifyToken = async token => {
+export async function verifyToken (token) {
   let domain = null
   try {
-    const decoded = jwt.verify(token, process.env.AUTHSECRET)
+    const decoded = verify(token, process.env.AUTHSECRET)
     domain = decoded.sub
   } catch (e) {
     return null
@@ -25,10 +25,10 @@ module.exports.verifyToken = async token => {
  * @param {string} token
  * @returns {string} Email domain
  */
-module.exports.getTokenDomain = async token => {
+export async function getTokenDomain (token) {
   let domain = null
   try {
-    const decoded = jwt.verify(token, process.env.AUTHSECRET)
+    const decoded = verify(token, process.env.AUTHSECRET)
     domain = decoded.sub
   } catch (e) {
     return null
@@ -41,13 +41,12 @@ module.exports.getTokenDomain = async token => {
  * @param {string} domain A top level domain
  * @returns {object} A claims object
  */
-module.exports.getDomainClaims = async domain => {
+export async function getDomainClaims (domain) {
   let claims = { admin: false, codes: [] }
   try {
     const query = 'select * from authentication where domain = $1 limit 1'
-    const { rows } = await pool.query(query, [domain])
-    if (rows.length > 0)
-      claims = { admin: rows[0].admin, codes: rows[0].authority_codes }
+    const { rows } = await _query(query, [domain])
+    if (rows.length > 0) { claims = { admin: rows[0].admin, codes: rows[0].authority_codes } }
   } catch (e) {}
   return claims
 }
@@ -58,9 +57,9 @@ module.exports.getDomainClaims = async domain => {
  * @param {object} claims A claims object
  * @param {string} website A web address domain
  */
-module.exports.sendMagicLink = async (email, claims, website) => {
+export async function sendMagicLink (email, claims, website) {
   const domain = email.split('@').pop()
-  const token = jwt.sign(claims, process.env.AUTHSECRET, {
+  const token = sign(claims, process.env.AUTHSECRET, {
     audience: [website],
     expiresIn: '30d',
     issuer: 'api.librarydata.uk',
@@ -76,7 +75,7 @@ module.exports.sendMagicLink = async (email, claims, website) => {
     }
   }
 
-  const transporter = nodemailer.createTransport(mailConfig)
+  const transporter = createTransport(mailConfig)
 
   const emailTemplate = new Email({
     message: {
@@ -93,8 +92,8 @@ module.exports.sendMagicLink = async (email, claims, website) => {
         to: email
       },
       locals: {
-        website: website,
-        token: token
+        website,
+        token
       }
     })
   } catch (e) {
@@ -110,6 +109,6 @@ module.exports.sendMagicLink = async (email, claims, website) => {
  * @param {object} claims
  * @returns {boolean} Access
  */
-module.exports.verifyServiceCodeAccess = async (serviceCode, claims) => {
+export async function verifyServiceCodeAccess (serviceCode, claims) {
   return claims.codes.indexOf(serviceCode) === -1 && claims.admin === false
 }

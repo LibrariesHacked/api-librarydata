@@ -1,7 +1,7 @@
-const pg = require('pg')
+import { types, Pool } from 'pg'
 
 // Currently using timestamp without timezone so this ensures the time isn't messed with
-pg.types.setTypeParser(1114, str => str)
+types.setTypeParser(1114, str => str)
 
 const config = {
   user: process.env.PGUSER,
@@ -16,6 +16,6 @@ const config = {
   idleTimeoutMillis: 30000
 }
 
-const pool = new pg.Pool(config)
+const pool = new Pool(config)
 
-module.exports = pool
+export default pool
