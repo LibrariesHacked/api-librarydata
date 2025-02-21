@@ -4,17 +4,25 @@ import {
   getAllRecordsInTable,
   getRecordInTable,
   getSingleFieldArrayAllRecordsInTable
-} from '../helpers/airtable'
-import { getFeedFromBlogUrls, getFeedFromYouTubeIds } from '../helpers/feed'
-import cache from '../middleware/cache.js'
+} from '../helpers/airtable.js'
+
+import { getFeedFromBlogUrls, getFeedFromYouTubeIds } from '../helpers/feed.js'
+
 import { accessToken } from '../middleware/token.js'
+import cache from '../middleware/cache.js'
+
 import { getLocalAuthorities } from '../models/localAuthority.js'
+
 const router = Router()
 
 /**
- * Get services including access rights for editing
+ * Get all the library services
+ * @group services - Operations about library services
+ * @returns {Array.<Service>} 200 - An array of library services
+ * @returns {Error} 401 - Unauthorized
+ * @returns {Error} 500 - Unexpected error
  */
-router.get('/', accessToken, async (req, res, next) => {
+router.get('/', cache(3600), accessToken, async (req, res, next) => {
   const services = await getLocalAuthorities()
   services.forEach(
     service =>
@@ -27,9 +35,9 @@ router.get('/', accessToken, async (req, res, next) => {
 })
 
 /**
- * Get all the library services from airtable
+ * Gets all service records from airtable
  */
-router.get('/airtable/', cache(3600), async (req, res) => {
+router.get('/airtable/', cache(14400), async (req, res) => {
   const fields = req.query.fields ? req.query.fields.split(',') : null
   const records = await getAllRecordsInTable(
     process.env.AIRTABLE_LIBRARY_SERVICES_BASE_ID,
@@ -46,9 +54,9 @@ router.get('/airtable/', cache(3600), async (req, res) => {
 })
 
 /**
- * Gets a single service from airtable
+ * Gets single service record from airtable
  */
-router.get('/airtable/:service_code', cache(3600), async (req, res) => {
+router.get('/airtable/:service_code', cache(14400), async (req, res) => {
   const record = await getRecordInTable(
     process.env.AIRTABLE_LIBRARY_SERVICES_BASE_ID,
     process.env.AIRTABLE_LIBRARY_SERVICES_TABLE_NAME,
@@ -61,7 +69,7 @@ router.get('/airtable/:service_code', cache(3600), async (req, res) => {
 /**
  * Get a single blog feed from all existing feeds
  */
-router.get('/airtable/feeds/blogs{.:ext}', cache(3600), async (req, res) => {
+router.get('/airtable/feeds/blogs{.:ext}', cache(14400), async (req, res) => {
   const blogUrls = await getSingleFieldArrayAllRecordsInTable(
     process.env.AIRTABLE_LIBRARY_SERVICES_BASE_ID,
     process.env.AIRTABLE_LIBRARY_SERVICES_TABLE_NAME,
@@ -78,9 +86,9 @@ router.get('/airtable/feeds/blogs{.:ext}', cache(3600), async (req, res) => {
 })
 
 /**
- * Get a single youtube feed from all existing feeds
+ * Get the youtube feed from airtable
  */
-router.get('/airtable/feeds/youtube{.:ext}', cache(3600), async (req, res) => {
+router.get('/airtable/feeds/youtube{.:ext}', cache(14400), async (req, res) => {
   const youtubeIds = await getSingleFieldArrayAllRecordsInTable(
     process.env.AIRTABLE_LIBRARY_SERVICES_BASE_ID,
     process.env.AIRTABLE_LIBRARY_SERVICES_TABLE_NAME,

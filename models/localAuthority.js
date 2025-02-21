@@ -1,4 +1,4 @@
-import { query as _query } from '../helpers/database'
+import pool from '../helpers/database.js'
 
 const tableFields = ['code', 'name', 'nice_name']
 
@@ -11,7 +11,7 @@ export async function getLocalAuthorities () {
   try {
     const query =
       'select ' + tableFields.join(', ') + ' from schemas_local_authority'
-    const { rows } = await _query(query)
+    const { rows } = await pool.query(query)
     if (rows.length > 0) services = rows
     services = rows
   } catch (e) {}
@@ -30,7 +30,7 @@ export async function getLocalAuthoritiesByCodes (codes) {
       'select ' +
       tableFields.join(', ') +
       ' from schemas_local_authority where code = ANY($1::text[])'
-    const { rows } = await _query(query, [codes])
+    const { rows } = await pool.query(query, [codes])
     if (rows.length > 0) services = rows
     services = rows
   } catch (e) {

@@ -1,14 +1,18 @@
-import { query as _query } from '../helpers/database'
-import { verify, sign } from 'jsonwebtoken'
+import jsonwebtoken from 'jsonwebtoken'
 import { createTransport } from 'nodemailer'
+
 import Email from 'email-templates'
+
+import pool from '../helpers/database.js'
+
+const { verify, sign } = jsonwebtoken
 
 /**
  * Verifies that a JWT is valid and returns the claims or null if it isn't
  * @param {string} token A JSON web token
  * @returns {object|null} A claims object
  */
-export async function verifyToken (token) {
+export const verifyToken = async token => {
   let domain = null
   try {
     const decoded = verify(token, process.env.AUTHSECRET)
@@ -25,7 +29,7 @@ export async function verifyToken (token) {
  * @param {string} token
  * @returns {string} Email domain
  */
-export async function getTokenDomain (token) {
+export const getTokenDomain = async token => {
   let domain = null
   try {
     const decoded = verify(token, process.env.AUTHSECRET)
@@ -41,12 +45,14 @@ export async function getTokenDomain (token) {
  * @param {string} domain A top level domain
  * @returns {object} A claims object
  */
-export async function getDomainClaims (domain) {
+export const getDomainClaims = async domain => {
   let claims = { admin: false, codes: [] }
   try {
     const query = 'select * from authentication where domain = $1 limit 1'
-    const { rows } = await _query(query, [domain])
-    if (rows.length > 0) { claims = { admin: rows[0].admin, codes: rows[0].authority_codes } }
+    const { rows } = await pool.query(query, [domain])
+    if (rows.length > 0) {
+      claims = { admin: rows[0].admin, codes: rows[0].authority_codes }
+    }
   } catch (e) {}
   return claims
 }
@@ -57,7 +63,7 @@ export async function getDomainClaims (domain) {
  * @param {object} claims A claims object
  * @param {string} website A web address domain
  */
-export async function sendMagicLink (email, claims, website) {
+export const sendMagicLink = async (email, claims, website) => {
   const domain = email.split('@').pop()
   const token = sign(claims, process.env.AUTHSECRET, {
     audience: [website],
@@ -109,6 +115,6 @@ export async function sendMagicLink (email, claims, website) {
  * @param {object} claims
  * @returns {boolean} Access
  */
-export async function verifyServiceCodeAccess (serviceCode, claims) {
+export const verifyServiceCodeAccess = (serviceCode, claims) => {
   return claims.codes.indexOf(serviceCode) === -1 && claims.admin === false
 }

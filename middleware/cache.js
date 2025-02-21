@@ -1,4 +1,6 @@
-import { get, put } from 'memory-cache'
+import memorycache from 'memory-cache'
+
+const { get, put } = memorycache
 
 /**
  * Caches a response for the specified duration

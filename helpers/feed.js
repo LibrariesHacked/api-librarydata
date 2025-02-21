@@ -1,4 +1,4 @@
-import RSSCombiner from '../lib/feed-combiner'
+import RSSCombiner from '../lib/feed-combiner.js'
 
 /**
  * Gets a combined feed from multiple feed URLs
@@ -7,7 +7,7 @@ import RSSCombiner from '../lib/feed-combiner'
  * @param {Array} customNamespaces An array of namespaces
  * @returns {Object} A combined feed
  */
-export async function getFeedFromUrls (urls, title, customNamespaces) {
+export const getFeedFromUrls = async (urls, title, customNamespaces) => {
   const feedConfig = {
     title,
     size: 100,
@@ -24,7 +24,7 @@ export async function getFeedFromUrls (urls, title, customNamespaces) {
  * @param {string} id ID of the YouTube channel/playlist/user
  * @returns {string} A feed URL
  */
-export function getYouTubeFeedUrlFromId (id) {
+export const getYouTubeFeedUrlFromId = id => {
   const youTubeUrl = process.env.YOUTUBE_FEED_URL
   const idTypes = {
     UC: 'channel_id',
@@ -38,7 +38,7 @@ export function getYouTubeFeedUrlFromId (id) {
  * @param {string} id ID of the Flickr user
  * @returns {string} A feed URL
  */
-export function getFlickrFeedUrlFromId (id) {
+export const getFlickrFeedUrlFromId = id => {
   return process.env.FLICKR_FEED_URL + id
 }
 
@@ -47,7 +47,7 @@ export function getFlickrFeedUrlFromId (id) {
  * @param {Array} ids An array of YouTube IDs
  * @returns {Array} A set of feed URLs
  */
-export function getYouTubeFeedUrlArrayFromIds (ids) {
+export const getYouTubeFeedUrlArrayFromIds = ids => {
   return ids.map(id => this.getYouTubeFeedUrlFromId(id))
 }
 
@@ -56,7 +56,7 @@ export function getYouTubeFeedUrlArrayFromIds (ids) {
  * @param {Array} ids An array of YouTube IDs
  * @returns {object} A combined feed
  */
-export async function getFeedFromYouTubeIds (ids) {
+export const getFeedFromYouTubeIds = async ids => {
   const urls = this.getYouTubeFeedUrlArrayFromIds(ids)
   const feed = await this.getFeedFromUrls(
     urls,
@@ -74,7 +74,7 @@ export async function getFeedFromYouTubeIds (ids) {
  * @param {*} urls A set of Blog feed URLs
  * @returns {object} A combined feed
  */
-export async function getFeedFromBlogUrls (urls) {
+export const getFeedFromBlogUrls = async urls => {
   const feed = await this.getFeedFromUrls(
     urls,
     'Library blogs | Libraries at home',

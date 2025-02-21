@@ -1,19 +1,28 @@
 import { Router } from 'express'
-import { verifyToken } from '../middleware/token'
+
+import { verifyAccessToken } from '../middleware/token.js'
 
 import {
   verifyServiceCodeAccess,
   getTokenDomain
-} from '../helpers/authenticate'
-import { createOrUpdateFile } from '../helpers/github'
-import { getFileFromUrl } from '../helpers/schema'
+} from '../helpers/authenticate.js'
+import { createOrUpdateFile } from '../helpers/github.js'
+import { getFileFromUrl } from '../helpers/schema.js'
 
 import {
   getLocalAuthoritiesByCodes,
   getLocalAuthoritySlugFromName
-} from '../models/localAuthority'
+} from '../models/localAuthority.js'
+
 const router = Router()
 
+/**
+ * Gets the schema data for libaries for a given service code
+ * @param {string} service_code.path.required - The service code of the local authority
+ * @returns {string} 200 - The schema data for the libraries
+ * @returns {Error} 400 - The service code is invalid
+ * @returns {Error} 500 - An error occurred while getting the schema data
+ */
 router.get('/libraries/:service_code', async (req, res) => {
   const serviceCode = req.params.service_code
 
@@ -29,7 +38,15 @@ router.get('/libraries/:service_code', async (req, res) => {
   res.send(content)
 })
 
-router.put('/libraries/:service_code', verifyToken, async (req, res) => {
+/**
+ * Updates the schema data for libaries for a given service code
+ * @param {string} service_code.path.required - The service code of the local authority
+ * @returns {string} 200 - The schema data for the libraries has been updated
+ * @returns {Error} 400 - The service code is invalid
+ * @returns {Error} 403 - The user does not have access to the service code
+ * @returns {Error} 500 - An error occurred while updating the schema data
+ */
+router.put('/libraries/:service_code', verifyAccessToken, async (req, res) => {
   const serviceCode = req.params.service_code.toUpperCase()
   const claims = req.claims
   const csvData = req.body

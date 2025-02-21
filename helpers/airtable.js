@@ -23,13 +23,13 @@ export async function getAllRecordsInTable (baseName, table) {
  * @param {string} filterFieldValue The value to filter the filter field by
  * @returns {Array} An array of records
  */
-export async function getSingleFieldArrayAllRecordsInTable (
+export const getSingleFieldArrayAllRecordsInTable = async (
   baseName,
   table,
   fieldName,
   filterFieldName,
   filterFieldValue
-) {
+) => {
   const base = new Airtable({ apiKey: process.env.AIRTABLE_API_KEY }).base(
     baseName
   )
@@ -56,7 +56,12 @@ export async function getSingleFieldArrayAllRecordsInTable (
  * @param {string} fieldValue The value to filter the filter field by
  * @returns
  */
-export async function getRecordInTable (baseName, table, fieldName, fieldValue) {
+export const getRecordInTable = async (
+  baseName,
+  table,
+  fieldName,
+  fieldValue
+) => {
   const base = new Airtable({ apiKey: process.env.AIRTABLE_API_KEY }).base(
     baseName
   )

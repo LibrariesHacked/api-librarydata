@@ -1,4 +1,4 @@
-import { query as _query } from '../helpers/database.js'
+import pool from '../helpers/database.js'
 
 const viewFieldsGeo = [
   'local_authority',
@@ -106,7 +106,7 @@ const viewFieldsSchemaExtended = [
  * @returns {Array} A list of field names
  */
 export function getSchemaFields () {
-  return viewFieldsSchema.map(f => f.replace(/\"/g, ''))
+  return viewFieldsSchema.map(f => f.replace(/"/g, ''))
 }
 
 /**
@@ -197,7 +197,7 @@ export async function getLibraries (
       whereQueries.length > 0 ? `where ${whereQueries.join(' and ')}` : ''
     const query = `select ${selectFieldsText}, count(*) OVER() AS total from vw_schemas_libraries_extended ${whereQueriesText} ${orderQuery} ${limitQuery} ${offsetQuery}`
 
-    const { rows } = await _query(query, params)
+    const { rows } = await pool.query(query, params)
 
     libraries = rows
   } catch (e) {}
@@ -232,7 +232,7 @@ export async function getLibrariesSchema (serviceCodes) {
       (whereQueries.length > 0
         ? 'where ' + whereQueries.join(' and ') + ' '
         : '')
-    const { rows } = await _query(query, params)
+    const { rows } = await pool.query(query, params)
     libraries = rows
   } catch (e) {}
   return libraries
@@ -252,7 +252,7 @@ export async function getNearestLibraries (longitude, latitude, limit) {
       'select ' +
       viewFieldsGeo.join(', ') +
       ',  st_distance(st_transform(st_setsrid(st_makepoint($1, $2), 4326), 27700), st_setsrid(st_makepoint(easting, northing), 27700)) as distance from vw_libraries_geo where year_closed is null order by distance asc limit $3'
-    const { rows } = await _query(query, [longitude, latitude, limit])
+    const { rows } = await pool.query(query, [longitude, latitude, limit])
     if (rows.length > 0) libraries = rows
   } catch (e) {}
   return libraries
@@ -271,7 +271,7 @@ export async function getLibraryById (id) {
       viewFieldsSchemaExtended.join(', ') +
       ' ' +
       'from vw_schemas_libraries_extended where id = $1'
-    const { rows } = await _query(query, [id])
+    const { rows } = await pool.query(query, [id])
     if (rows.length > 0) library = rows[0]
   } catch (e) {}
   return library
@@ -292,7 +292,10 @@ export async function getLibraryBySystemName (
     const query = `select ${viewFieldsSchemaExtended.join(
       ', '
     )} from vw_schemas_libraries_extended where lower(regexp_replace("Local authority", '[. ,:-]+', '-', 'g')) = $1 and lower(regexp_replace("Library name", '[. ,:-]+', '-', 'g')) = $2`
-    const { rows } = await _query(query, [serviceSystemName, librarySystemName])
+    const { rows } = await pool.query(query, [
+      serviceSystemName,
+      librarySystemName
+    ])
     if (rows.length > 0) library = rows[0]
   } catch (e) {}
   return library
@@ -309,7 +312,7 @@ export async function getTileData (x, y, z) {
   const query = 'select fn_libraries_mvt($1, $2, $3)'
   let tile = null
   try {
-    const { rows } = await _query(query, [x, y, z])
+    const { rows } = await pool.query(query, [x, y, z])
     if (rows && rows.length > 0 && rows[0].fn_libraries_mvt) {
       tile = rows[0].fn_libraries_mvt
     }
@@ -328,7 +331,7 @@ export async function getBuildingsTileData (x, y, z) {
   const query = 'select fn_libraries_buildings_mvt($1, $2, $3)'
   let tile = null
   try {
-    const { rows } = await _query(query, [x, y, z])
+    const { rows } = await pool.query(query, [x, y, z])
     if (rows && rows.length > 0 && rows[0].fn_libraries_buildings_mvt) {
       tile = rows[0].fn_libraries_buildings_mvt
     }

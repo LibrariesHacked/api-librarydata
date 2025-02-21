@@ -6,7 +6,7 @@ import { verifyToken } from '../helpers/authenticate.js'
  * @param {object} res The response object
  * @param {object} next Function to pass the request to the next stage
  */
-export async function accessToken (req, res, next) {
+export const accessToken = async (req, res, next) => {
   const bearerHeader = req.headers.authorization
 
   if (bearerHeader) {
@@ -24,7 +24,7 @@ export async function accessToken (req, res, next) {
  * @param {object} res The response object
  * @param {object} next Function to pass the request to the next stage
  */
-export async function verifyAccessToken (req, res, next) {
+export const verifyAccessToken = async (req, res, next) => {
   const bearerHeader = req.headers.authorization
 
   if (bearerHeader) {
