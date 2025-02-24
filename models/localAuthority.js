@@ -1,4 +1,4 @@
-const pool = require('../helpers/database')
+import pool from '../helpers/database.js'
 
 const tableFields = ['code', 'name', 'nice_name']
 
@@ -6,7 +6,7 @@ const tableFields = ['code', 'name', 'nice_name']
  * Gets the local library authorities in the database
  * @returns {Array} Set of local authorities
  */
-module.exports.getLocalAuthorities = async () => {
+export async function getLocalAuthorities () {
   let services = []
   try {
     const query =
@@ -23,7 +23,7 @@ module.exports.getLocalAuthorities = async () => {
  * @param {Array} codes An array of ONS codes
  * @returns {Array} Set of local authorities
  */
-module.exports.getLocalAuthoritiesByCodes = async codes => {
+export async function getLocalAuthoritiesByCodes (codes) {
   let services = []
   try {
     const query =
@@ -39,7 +39,7 @@ module.exports.getLocalAuthoritiesByCodes = async codes => {
   return services
 }
 
-module.exports.getLocalAuthoritySlugFromName = name => {
+export function getLocalAuthoritySlugFromName (name) {
   return name
     .trim()
     .replace(/[^\w\s]/gi, '')

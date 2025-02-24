@@ -1,8 +1,12 @@
-const pg = require('pg')
+import pg from 'pg'
+
+const { types, Pool } = pg
 
 // Currently using timestamp without timezone so this ensures the time isn't messed with
-pg.types.setTypeParser(1114, str => str)
+types.setTypeParser(1114, str => str)
 
+// This is the connection to the database
+// It uses the .env file to get the credentials
 const config = {
   user: process.env.PGUSER,
   host: process.env.PGHOST,
@@ -16,6 +20,6 @@ const config = {
   idleTimeoutMillis: 30000
 }
 
-const pool = new pg.Pool(config)
+const pool = new Pool(config)
 
-module.exports = pool
+export default pool

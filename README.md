@@ -1,6 +1,6 @@
 # Library data API
 
-A Node JS API to provide UK public library data for library applications.
+An API to provide UK public library data for easy use in library applications.
 
 ## Getting Started
 
@@ -28,7 +28,7 @@ npm start
 
 ## Authors
 
-- **Dave Rowe** - *Original code and maintenance* - [DaveBathnes](https://github.com/DaveBathnes)
+- **Dave Rowe** - _Original code and maintenance_ - [DaveBathnes](https://github.com/DaveBathnes)
 
 See also the list of [contributors](https://github.com/LibrariesHacked/api-librarydata/contributors) who participated in this project.
 

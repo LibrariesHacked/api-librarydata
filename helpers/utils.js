@@ -1,4 +1,8 @@
-module.exports.convertJsonToGeoJson = (json, longitudeField, latitudeField) => {
+export const convertJsonToGeoJson = async (
+  json,
+  longitudeField,
+  latitudeField
+) => {
   const features = []
   json.forEach(item => {
     if (
@@ -7,7 +11,7 @@ module.exports.convertJsonToGeoJson = (json, longitudeField, latitudeField) => {
       item[longitudeField] === '' ||
       item[latitudeField] === ''
     ) {
-      return
+      return null
     } else {
       const feature = {
         type: 'Feature',

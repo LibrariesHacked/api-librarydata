@@ -1,45 +1,64 @@
-const express = require('express')
-const router = express.Router()
-const token = require('../middleware/token')
+import { Router } from 'express'
 
-const authHelper = require('../helpers/authenticate')
-const githubHelper = require('../helpers/github')
-const schemaHelper = require('../helpers/schema')
+import { verifyAccessToken } from '../middleware/token.js'
 
-const localAuthorityModel = require('../models/localAuthority')
+import {
+  verifyServiceCodeAccess,
+  getTokenDomain
+} from '../helpers/authenticate.js'
+import { createOrUpdateFile } from '../helpers/github.js'
+import { getFileFromUrl } from '../helpers/schema.js'
 
+import {
+  getLocalAuthoritiesByCodes,
+  getLocalAuthoritySlugFromName
+} from '../models/localAuthority.js'
+
+const router = Router()
+
+/**
+ * Gets the schema data for libaries for a given service code
+ * @param {string} service_code.path.required - The service code of the local authority
+ * @returns {string} 200 - The schema data for the libraries
+ * @returns {Error} 400 - The service code is invalid
+ * @returns {Error} 500 - An error occurred while getting the schema data
+ */
 router.get('/libraries/:service_code', async (req, res) => {
   const serviceCode = req.params.service_code
 
-  const localAuthorities = await localAuthorityModel.getLocalAuthoritiesByCodes(
-    [serviceCode.toUpperCase()]
-  )
+  const localAuthorities = await getLocalAuthoritiesByCodes([
+    serviceCode.toUpperCase()
+  ])
   if (localAuthorities.length < 1) return res.sendStatus(400)
 
-  const slug = localAuthorityModel.getLocalAuthoritySlugFromName(
-    localAuthorities[0].name
-  )
-  const content = await schemaHelper.getFileFromUrl(
+  const slug = getLocalAuthoritySlugFromName(localAuthorities[0].name)
+  const content = await getFileFromUrl(
     `https://raw.githubusercontent.com/LibrariesHacked/librarydata-db/main/data/schemas/libraries/${slug}.csv`
   )
   res.send(content)
 })
 
-router.put('/libraries/:service_code', token.verifyToken, async (req, res) => {
+/**
+ * Updates the schema data for libaries for a given service code
+ * @param {string} service_code.path.required - The service code of the local authority
+ * @returns {string} 200 - The schema data for the libraries has been updated
+ * @returns {Error} 400 - The service code is invalid
+ * @returns {Error} 403 - The user does not have access to the service code
+ * @returns {Error} 500 - An error occurred while updating the schema data
+ */
+router.put('/libraries/:service_code', verifyAccessToken, async (req, res) => {
   const serviceCode = req.params.service_code.toUpperCase()
   const claims = req.claims
   const csvData = req.body
   const token = req.token
 
-  if (!authHelper.verifyServiceCodeAccess(serviceCode, claims)) {
+  if (!verifyServiceCodeAccess(serviceCode, claims)) {
     return res.sendStatus(403)
   }
 
-  const emailDomain = await authHelper.getTokenDomain(token)
+  const emailDomain = await getTokenDomain(token)
 
-  const localAuthorities = await localAuthorityModel.getLocalAuthoritiesByCodes(
-    [serviceCode]
-  )
+  const localAuthorities = await getLocalAuthoritiesByCodes([serviceCode])
   if (localAuthorities.length < 1) return res.sendStatus(400)
 
   // Get the message from a custom header
@@ -48,11 +67,9 @@ router.put('/libraries/:service_code', token.verifyToken, async (req, res) => {
     `Updating ${localAuthorities[0].name} libraries schema`
 
   // Get the file slug from the local authority code
-  const slug = localAuthorityModel.getLocalAuthoritySlugFromName(
-    localAuthorities[0].name
-  )
+  const slug = getLocalAuthoritySlugFromName(localAuthorities[0].name)
 
-  const success = githubHelper.createOrUpdateFile(
+  const success = createOrUpdateFile(
     `data/schemas/libraries/${slug}.csv`,
     csvData,
     message,
@@ -62,4 +79,4 @@ router.put('/libraries/:service_code', token.verifyToken, async (req, res) => {
   res.sendStatus(success ? 200 : 500)
 })
 
-module.exports = router
+export default router

@@ -1,24 +1,27 @@
 'use strict'
 
-const express = require('express')
+import express from 'express'
+
+import authenticate from './routes/authenticate.js'
+import libraries from './routes/libraries.js'
+import schemas from './routes/schemas.js'
+import services from './routes/services.js'
+
+import dotenv from 'dotenv'
+import dotenvDefaults from 'dotenv-defaults'
+
 const app = express()
+dotenv.config()
+dotenvDefaults.config()
 
-const authenticate = require('./routes/authenticate')
-const libraries = require('./routes/libraries')
-const schemas = require('./routes/schemas')
-const services = require('./routes/services')
-
-require('dotenv').config()
-require('dotenv-defaults').config()
-
-// Allow cross origin
-app.use(function (req, res, next) {
+// Allow cross origin requests
+app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*')
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
   res.header(
     'Access-Control-Allow-Headers',
     'Origin, X-Requested-With, Content-Type, Accept, Authorization'
   )
-  res.header('Access-Control-Allow-Methods', 'POST, PUT, GET, OPTIONS')
   next()
 })
 
