@@ -57,7 +57,10 @@ router.get('/', async (req, res) => {
     closed
   )
 
-  if (!libraries || libraries.length === 0) return res.status(404)
+  if (!libraries || libraries.length === 0) {
+    // Return 404 and empty array if no libraries found
+    return res.status(404).json([])
+  }
 
   res.setHeader('Access-Control-Expose-Headers', 'X-Total-Count, X-Page')
   res.setHeader('X-Total-Count', libraries.length > 0 ? libraries[0].total : 0)
