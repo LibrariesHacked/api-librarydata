@@ -20,7 +20,7 @@
   "homepage": "https://github.com/LibrariesHacked/api-librarydata#readme",
   "dependencies": {
     "@octokit/rest": "^21.1.1",
-    "axios": "^1.9.0",
+    "axios": "^1.13.5",
     "dotenv": "^16.5.0",
     "dotenv-defaults": "^5.0.2",
     "email-templates": "^13.0.1",
